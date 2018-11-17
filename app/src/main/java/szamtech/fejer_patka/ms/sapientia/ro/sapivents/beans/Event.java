@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import java.io.Serializable;
 
 /**
+ * Removed setId()
+ * Id is automatically set when a new object is created
+ *
  * Model class for the Events
  * Not complete yet, so far it's made only for the SharedPreference data source
  * Implements Serializable so this class can be parse to Json
@@ -12,6 +15,10 @@ import java.io.Serializable;
  * TODO: update the model to its final version (when Firebase is integrated)
  */
 public class Event implements Comparable<Event>, Serializable {
+    //Static id field, gets incremented every time a new object is created
+    //This ensures that each object has a unique identifier
+    private static int sId;
+
     private int id;
     //Placeholder image
     //TODO: replace this
@@ -21,25 +28,23 @@ public class Event implements Comparable<Event>, Serializable {
     //TODO: add author which is a User object
     // private User author;
 
-    public Event(int id,String name, String image, String description) {
-        this.id = id;
+    public Event(String name, String image, String description) {
+        this.id = sId;
+        ++sId;
         this.name = name;
         this.image = image;
         this.description = description;
     }
 
-    public Event(int id,String name, String description) {
-        this.id = id;
+    public Event(String name, String description) {
+        this.id = sId;
+        ++sId;
         this.name = name;
         this.description = description;
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

@@ -78,6 +78,7 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      * Implemented method of
      * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
      * Gets called when a list item is clicked
+     * Opens the EventDetailFragment fragment and passes in @param event
      * @param event the event which got clicked
      */
     @Override
@@ -89,4 +90,35 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                 R.id.fragment_place
         );
     }
+
+    /**
+     * Implemented method of
+     * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
+     * Gets called when a list item is long clicked (pressed)
+     * Opens the EventAddEditFragment for editing and passes in @param event
+     * @param event object which got long clicked
+     */
+    @Override
+    public void onLongClickEventItem(Event event) {
+        EventAddEditFragment eventAddEditFragment = EventAddEditFragment.newInstanceForEditing(event);
+        FragmentNavigationUtil.addFragmentOnTop(
+                getContext(),
+                eventAddEditFragment,
+                R.id.fragment_place
+        );
+    }
+
+    /**
+     * Implemented method of
+     * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
+     * Gets called when the delete icon is clicked
+     * Removes @param event from SharedPreferences and updates the recyclerview
+     * @param event
+     */
+    @Override
+    public void onClickDeleteEvent(Event event) {
+        EventPrefUtil.removeEvent(getActivity(), event.getId() + "");
+        updateData();
+    }
+
 }

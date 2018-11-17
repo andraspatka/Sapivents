@@ -114,6 +114,16 @@ public class FragmentNavigationUtil {
     }
 
     /**
+     * Pop off one fragment a.k.a. go back
+     * @param context
+     * @param screen
+     */
+    public static void back(Context context, int screen){
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        fragmentManager.popBackStack();
+    }
+
+    /**
      * Checks to see whether or not the screen has any fragments loaded into it
      * @param screen
      * @return true if the screen's backstack is empty, false if it is not

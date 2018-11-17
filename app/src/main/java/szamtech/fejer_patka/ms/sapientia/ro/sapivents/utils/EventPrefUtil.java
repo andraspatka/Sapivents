@@ -51,7 +51,6 @@ public class EventPrefUtil {
     /**
      * Gets a contact from SharedPreferences
      * @param context application context
-     * @param key
      * @return the event at {@param key}
      */
     public static Event getContact(Context context, String key) {
@@ -63,10 +62,10 @@ public class EventPrefUtil {
 
     /**
      * Removes a contact from the SharedPreferences
-     * @param context
-     * @param key
+     * @param context Activity's context
+     * Event object with @param key gets removed
      */
-    public static void removeContact(Context context, String key) {
+    public static void removeEvent(Context context, String key) {
         getPreferences(context)
                 .edit()
                 .remove(key)
@@ -74,10 +73,21 @@ public class EventPrefUtil {
     }
 
     /**
+     * Clears everything from SharedPreferences
+     * @param context Activity's context
+     */
+    public static void clearAll(Context context){
+        getPreferences(context)
+                .edit()
+                .clear()
+                .apply();
+    }
+
+    /**
      * Gets all the values from SharedPreferences
      * Does it in an asynchronous manner, using an AsyncTaskRunner
      * @param context
-     * @return
+     * @return a list of all of the events
      */
     public static List<Event> getAllValues(Context context){
         AsyncTaskRunner asyncTaskRunner = new AsyncTaskRunner(context);

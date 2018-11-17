@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide(); //<< this
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
@@ -43,8 +43,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * Saves a list of generated Event objects to SharedPreferences using the EventPrefUtil class
      */
     private void prepareData(){
-        for(int i = 0; i < 100; ++i){
-            Event event = new Event(i, "Event" + i, getResources().getString(R.string.placeholder_text));
+        EventPrefUtil.clearAll(this);
+        for(int i = 0; i < 10; ++i){
+            Event event = new Event("Event" + i, getResources().getString(R.string.placeholder_text));
             EventPrefUtil.saveEvent(this, event.getId() + "", event);
             Log.v(TAG,event.getName() + " " + event.getId());
         }
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                                 R.id.fragment_place,
                                 true
                         );*/
-                EventAddEditFragment fragment = new EventAddEditFragment();
+                EventAddEditFragment fragment = EventAddEditFragment.newInstanceForAdding();
                 FragmentNavigationUtil.onTabSelected(
                         MainActivity.this,
                         Constants.ADD_SCREEN,
