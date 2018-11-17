@@ -30,7 +30,7 @@
         android:hint="@string/event_edit_add_name_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/event_edit_add_change_image" />
 
     <EditText
         android:id="@+id/event_edit_add_desc"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@+id/event_edit_add_name" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/event_edit_add_change_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
