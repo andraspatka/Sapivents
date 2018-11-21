@@ -11,19 +11,23 @@
     <ImageView
         android:id="@+id/logo_image_view"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:src="@drawable/logo_placeholder" />
+        android:layout_height="@dimen/logo_height"
+        android:src="@drawable/logo_placeholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/fragment_place"
+        android:layout_marginTop="@dimen/logo_height"
+        android:layout_marginBottom="@dimen/bottom_nav_height"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
+        android:layout_height="@dimen/bottom_nav_height"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

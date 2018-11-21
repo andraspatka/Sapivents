@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
      * Saves a list of generated Event objects to SharedPreferences using the EventPrefUtil class
      */
     private void prepareData(){
-        EventPrefUtil.clearAll(this);
         for(int i = 0; i < 10; ++i){
             Event event = new Event("Event" + i, getResources().getString(R.string.placeholder_text));
             EventPrefUtil.saveEvent(this, event.getId() + "", event);
