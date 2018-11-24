@@ -83,10 +83,10 @@ public class EventAddEditFragment extends Fragment {
         //If the fragment is opened for editing, then fill the EditText and ImageView views with
         //the event's details
         if(sIsOpenForEditing){
-            eventNameEditText.setText(sEvent.getName());
+            eventNameEditText.setText(sEvent.getTitle());
             eventDescEditText.setText(sEvent.getDescription());
             Glide.with(getActivity())
-                    .load(sEvent.getImage())
+                    .load(sEvent.getImages().get(0))
                     .apply(new RequestOptions().centerCrop())
                     .into(eventImageView);
         }
@@ -100,7 +100,7 @@ public class EventAddEditFragment extends Fragment {
      */
     @OnClick(R.id.event_edit_add_save) void saveEvent(View v){
         //Set the name and description fields from the EditTexts
-        sEvent.setName(eventNameEditText.getText().toString());
+        sEvent.setTitle(eventNameEditText.getText().toString());
         sEvent.setDescription(eventDescEditText.getText().toString());
         Log.v(TAG, sEvent.toString());
         //Save the event
@@ -136,14 +136,17 @@ public class EventAddEditFragment extends Fragment {
                 if(resultCode == RESULT_OK){
                     final Uri imageUri = imageReturnedIntent.getData();
                     //Set the URI to the event's image field
-                    sEvent.setImage(imageUri.toString());
+                    if(imageUri != null){
+                        sEvent.addImage(imageUri.toString());
+                        Log.v(TAG, imageUri.toString());
+                    }
                     //Load the image
                     Glide.with(getActivity())
-                            .load(sEvent.getImage())
+                            .load(sEvent.getImages().get(0))
                             .apply(new RequestOptions().centerCrop())
                             .into(eventImageView);
 
-                    Log.v(TAG, imageUri.toString());
+
                 }
                 break;
         }

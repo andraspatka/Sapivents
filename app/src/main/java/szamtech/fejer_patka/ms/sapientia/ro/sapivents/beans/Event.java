@@ -30,6 +30,12 @@ public class Event implements Comparable<Event>, Serializable {
     private ArrayList<User> attendants;
     private boolean published;
 
+
+    public Event(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
     public Event(String title, String description, long date, String location, ArrayList<String> images, User author, ArrayList<User> attendants, boolean published) {
         this.id = sId;
         ++sId;
@@ -74,6 +80,9 @@ public class Event implements Comparable<Event>, Serializable {
     public void setDate(long date) {
         this.date = date;
     }
+    public void addImage(String url){
+        this.images.add(url);
+    }
 
     public String getLocation() {
         return location;
@@ -117,6 +126,6 @@ public class Event implements Comparable<Event>, Serializable {
 
     @Override
     public int compareTo(@NonNull Event o) {
-        return this.getTitle().compareTo(o.getTitle());
+        return getTitle().compareTo(o.getTitle());
     }
 }

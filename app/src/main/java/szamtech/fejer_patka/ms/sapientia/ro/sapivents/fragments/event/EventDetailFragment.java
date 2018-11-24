@@ -43,10 +43,10 @@ public class EventDetailFragment extends Fragment {
         TextView eventName = (TextView) view.findViewById(R.id.event_detail_name);
         TextView eventDesc = (TextView) view.findViewById(R.id.event_detail_desc);
         ImageView eventImage = (ImageView) view.findViewById(R.id.event_detail_image);
-        eventName.setText(sEvent.getName());
+        eventName.setText(sEvent.getTitle());
         eventDesc.setText(sEvent.getDescription());
         Glide.with(getContext())
-                .load(sEvent.getImage())
+                .load(sEvent.getImages().get(0))
                 .into(eventImage);
 
         return view;

@@ -43,6 +43,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
         //OnClickListener is set in the onCreateViewHolder rather than in the onBindViewHolder
         //so the listener isn't bound multiple times unnecessarily
         //Set onClickListener for the whole itemView
+        //holder.delete.setVisibility(View.INVISIBLE);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +71,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
     @Override
     public void onBindViewHolder(EventsAdapter.EventsViewHolder holder, int position) {
         Event event = mEventsList.get(position);
-        holder.name.setText(event.getName());
+        holder.name.setText(event.getTitle());
         //The description gets trimmed, only the first 100 characters are displayed
         if(event.getDescription().length() > 100){
             holder.desc.setText(event.getDescription().substring(0, 100) + "...");
@@ -81,7 +82,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
 
         //RequestOptions centerCrop() option makes the image fit the imageview fully
         Glide.with(mContext)
-                .load(event.getImage())
+                .load(event.getImages().get(0))
                 .apply(new RequestOptions().centerCrop())
                 .into(holder.image);
     }
