@@ -1,7 +1,9 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +68,11 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
     private void updateData(){
         //Get the data from SharedPreferences
         mEvents = EventPrefUtil.getAllValues(getActivity());
+        for(int i=0; i<mEvents.size(); ++i){
+            if(!mEvents.get(i).isPublished()){
+                mEvents.remove(i);
+            }
+        }
         //Create the adapter
         mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
         //Set the adapter to the recyclerview
@@ -95,30 +103,41 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      * Implemented method of
      * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
      * Gets called when a list item is long clicked (pressed)
-     * Opens the EventAddEditFragment for editing and passes in @param event
+     * Opens a dialog with two buttons: Edit and Delete
+     * The Edit button opens the EventAddEditFragment for editing and passes in the current Event object
+     * THe Delete button deletes the Event
      * @param event object which got long clicked
      */
     @Override
-    public void onLongClickEventItem(Event event) {
-        EventAddEditFragment eventAddEditFragment = EventAddEditFragment.newInstanceForEditing(event);
-        FragmentNavigationUtil.addFragmentOnTop(
-                getContext(),
-                eventAddEditFragment,
-                R.id.fragment_place
-        );
-    }
-
-    /**
-     * Implemented method of
-     * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
-     * Gets called when the delete icon is clicked
-     * Removes @param event from SharedPreferences and updates the recyclerview
-     * @param event
-     */
-    @Override
-    public void onClickDeleteEvent(Event event) {
-        EventPrefUtil.removeEvent(getActivity(), event.getId() + "");
-        updateData();
+    public void onLongClickEventItem(final Event event) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //builder.setTitle(R.string.pick_color)
+        String options[] ={"Edit", "Delete"};
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch(which){
+                            case 0:
+                                EventAddEditFragment eventAddEditFragment = EventAddEditFragment.newInstanceForEditing(event);
+                                FragmentNavigationUtil.addFragmentOnTop(
+                                        getContext(),
+                                        eventAddEditFragment,
+                                        R.id.fragment_place);
+                                break;
+                            case 1:
+                                EventPrefUtil.removeEvent(getActivity(), event.getId() + "");
+                                updateData();
+                                Toast deletedToast = Toast.makeText(
+                                        EventListFragment.super.getContext(),
+                                        "Deleted " + event.getTitle(),
+                                        Toast.LENGTH_SHORT);
+                                deletedToast.show();
+                                break;
+                        }
+                    }
+                });
+        builder.show();
     }
 
 }

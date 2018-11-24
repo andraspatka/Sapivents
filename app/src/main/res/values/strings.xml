@@ -12,4 +12,6 @@
     <string name="event_edit_add_change_image">Change image</string>
     <string name="event_edit_add_name_hint">Event name</string>
     <string name="event_edit_add_desc_hint">Event description</string>
+    <string name="event_edit_add_date_hint">Event date</string>
+    <string name="event_edit_add_location_hint">Event location</string>
 </resources>

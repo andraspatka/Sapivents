@@ -3,6 +3,7 @@ package szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class User implements Serializable, Comparable<User> {
     //Temporary. only while using shared preferences
@@ -13,6 +14,7 @@ public class User implements Serializable, Comparable<User> {
     private String firstName;
     private String lastName;
     private String profileImage;
+    private ArrayList<String> eventIds;
 
     //For Shared Preferences
     public User(String phone, String firstName, String lastName, String profileImage) {

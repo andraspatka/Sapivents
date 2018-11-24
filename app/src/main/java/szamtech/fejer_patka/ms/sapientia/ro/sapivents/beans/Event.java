@@ -23,11 +23,11 @@ public class Event implements Comparable<Event>, Serializable {
     private int id;
     private String title;
     private String description;
-    private long date;
+    private DateTime date;
     private String location;
     private ArrayList<String> images = new ArrayList<>();
-    private User author;
-    private ArrayList<User> attendants;
+    private String authorId;
+    private ArrayList<String> attendants;
     private boolean published;
 
 
@@ -36,7 +36,7 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    public Event(String title, String description, long date, String location, ArrayList<String> images, User author, ArrayList<User> attendants, boolean published) {
+    public Event(String title, String description, DateTime date, String location, ArrayList<String> images, String authorId, ArrayList<String> attendants, boolean published) {
         this.id = sId;
         ++sId;
         this.title = title;
@@ -44,7 +44,7 @@ public class Event implements Comparable<Event>, Serializable {
         this.date = date;
         this.location = location;
         this.images = images;
-        this.author = author;
+        this.authorId = authorId;
         this.attendants = attendants;
         this.published = published;
     }
@@ -73,15 +73,12 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    public long getDate() {
+    public DateTime getDate() {
         return date;
     }
 
-    public void setDate(long date) {
+    public void setDate(DateTime date) {
         this.date = date;
-    }
-    public void addImage(String url){
-        this.images.add(url);
     }
 
     public String getLocation() {
@@ -100,19 +97,23 @@ public class Event implements Comparable<Event>, Serializable {
         this.images = images;
     }
 
-    public User getAuthor() {
-        return author;
+    public void clearImages(){
+        this.images = new ArrayList<>();
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public ArrayList<User> getAttendants() {
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public ArrayList<String> getAttendants() {
         return attendants;
     }
 
-    public void setAttendants(ArrayList<User> attendants) {
+    public void setAttendants(ArrayList<String> attendants) {
         this.attendants = attendants;
     }
 

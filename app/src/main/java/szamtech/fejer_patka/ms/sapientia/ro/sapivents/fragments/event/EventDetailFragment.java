@@ -14,6 +14,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 
 /**
+ * TODO: Update this Fragment
  * Fragment for listing an event's details
  */
 public class EventDetailFragment extends Fragment {
@@ -35,6 +36,7 @@ public class EventDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    //TODO: ButterKnife this
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -45,10 +47,11 @@ public class EventDetailFragment extends Fragment {
         ImageView eventImage = (ImageView) view.findViewById(R.id.event_detail_image);
         eventName.setText(sEvent.getTitle());
         eventDesc.setText(sEvent.getDescription());
-        Glide.with(getContext())
-                .load(sEvent.getImages().get(0))
-                .into(eventImage);
-
+        if(sEvent.getImages().size() > 0) {
+            Glide.with(getContext())
+                    .load(sEvent.getImages().get(0))
+                    .into(eventImage);
+        }
         return view;
     }
 }
