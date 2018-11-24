@@ -3,6 +3,7 @@ package szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Removed setId()
@@ -20,47 +21,42 @@ public class Event implements Comparable<Event>, Serializable {
     private static int sId;
 
     private int id;
-    //Placeholder image
-    //TODO: replace this
-    private String image="https://cdn.pixabay.com/photo/2013/04/06/11/50/image-editing-101040_960_720.jpg";
+    private String title;
     private String description;
-    private String name="";
-    //TODO: add author which is a User object
-    // private User author;
+    private long date;
+    private String location;
+    private ArrayList<String> images = new ArrayList<>();
+    private User author;
+    private ArrayList<User> attendants;
+    private boolean published;
 
-    public Event(String name, String image, String description) {
+    public Event(String title, String description, long date, String location, ArrayList<String> images, User author, ArrayList<User> attendants, boolean published) {
         this.id = sId;
         ++sId;
-        this.name = name;
-        this.image = image;
+        this.title = title;
         this.description = description;
-    }
-
-    public Event(String name, String description) {
-        this.id = sId;
-        ++sId;
-        this.name = name;
-        this.description = description;
+        this.date = date;
+        this.location = location;
+        this.images = images;
+        this.author = author;
+        this.attendants = attendants;
+        this.published = published;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getTitle() {
+        return title;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -71,17 +67,56 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", image='" + image + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+    public long getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public ArrayList<String> getImages() {
+        return images;
+    }
+
+    public void setImages(ArrayList<String> images) {
+        this.images = images;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    public ArrayList<User> getAttendants() {
+        return attendants;
+    }
+
+    public void setAttendants(ArrayList<User> attendants) {
+        this.attendants = attendants;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
     }
 
     @Override
     public int compareTo(@NonNull Event o) {
-        return this.getName().compareTo(o.getName());
+        return this.getTitle().compareTo(o.getTitle());
     }
 }
