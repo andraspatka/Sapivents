@@ -12,4 +12,6 @@
     <string name="event_edit_add_change_image">Change image</string>
     <string name="event_edit_add_name_hint">Event name</string>
     <string name="event_edit_add_desc_hint">Event description</string>
+    <string name="signIn_button">Sign In</string>
+    <string name="sign_in_password_hint">Type your validation code here</string>
 </resources>

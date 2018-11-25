@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileEditViewFragment;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserSignInFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.Constants;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
@@ -36,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Bottom navigation
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
         prepareData();
+        mBottomNavigationView.setVisibility(View.INVISIBLE);
+
+        UserSignInFragment userSignInFragment = new UserSignInFragment();
+        FragmentNavigationUtil.addFragmentOnTop(this, userSignInFragment, R.id.fragment_place_signin);
 
     }
     //TODO: remove this once Firebase is integrated to the project
