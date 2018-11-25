@@ -22,7 +22,6 @@ public class FragmentNavigationUtil {
     public static final int ADD_SCREEN = 2;
 
     private static ArrayList<Stack<Fragment>> sFragmentStacks = new ArrayList<>();
-    private static final FragmentNavigationUtil SINGLE_INSTANCE = new FragmentNavigationUtil();
 
     /**
      * Setup, create the stacks
@@ -31,9 +30,6 @@ public class FragmentNavigationUtil {
         for(int i = 0; i< FragmentNavigationUtil.NUMBER_OF_SCREENS; ++i){
             sFragmentStacks.add(new Stack<Fragment>());
         }
-    }
-    public static FragmentNavigationUtil getInstance(){
-        return SINGLE_INSTANCE;
     }
 
     /**
@@ -127,6 +123,16 @@ public class FragmentNavigationUtil {
     public static void back(Context context, int screen){
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
         fragmentManager.popBackStack();
+    }
+
+    /**
+     * Returns true if there is only one fragment in the backstack
+     * False otherwise
+     * @param context
+     * @return
+     */
+    public static boolean isOnlyFragment(Context context){
+        return ((FragmentActivity) context).getSupportFragmentManager().getBackStackEntryCount() == 1;
     }
 
     /**

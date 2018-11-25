@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -148,6 +149,8 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             EventPrefUtil.saveEvent(getActivity(),sEvent.getId()+"",sEvent);
             //Remove this fragment from the backstack
             FragmentNavigationUtil.back(getActivity(), 0);
+            BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
+            bottomNavigationView.setSelectedItemId(R.id.menu_home);
         }
     }
 
