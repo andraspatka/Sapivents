@@ -69,7 +69,6 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
         }else{
             holder.desc.setText(event.getDescription());
         }
-        //TODO format the date
         holder.date.setText(event.getDate()+"");
         //TODO format the location
         holder.location.setText(event.getLocation());

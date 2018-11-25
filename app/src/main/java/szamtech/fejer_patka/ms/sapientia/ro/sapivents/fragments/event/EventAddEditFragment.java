@@ -37,7 +37,6 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * Fragment for adding/editing event details
- * TODO: Finish this
  */
 public class EventAddEditFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     private static final String TAG = "EventAddEditFragment";

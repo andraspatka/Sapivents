@@ -4,4 +4,5 @@
     <dimen name="bottom_nav_height">56dp</dimen>
     <dimen name="text_size">16sp</dimen>
     <dimen name="logo_height_plus_margin">66dp</dimen>
+    <dimen name="event_image_height">300dp</dimen>
 </resources>

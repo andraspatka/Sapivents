@@ -13,7 +13,6 @@ import java.util.ArrayList;
  * Not complete yet, so far it's made only for the SharedPreference data source
  * Implements Serializable so this class can be parse to Json
  * Implements Comparable an array of this class type can be sorted
- * TODO: update the model to its final version (when Firebase is integrated)
  */
 public class Event implements Comparable<Event>, Serializable {
     //Static id field, gets incremented every time a new object is created
