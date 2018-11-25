@@ -8,7 +8,7 @@
     app:cardCornerRadius="6dp"
     app:cardElevation="6dp">
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp">
@@ -16,34 +16,75 @@
         <ImageView
             android:id="@+id/event_image"
             android:layout_width="match_parent"
-            android:layout_height="80dp"/>
+            android:layout_height="81dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/event_name"
             android:layout_width="match_parent"
-            android:layout_marginEnd="30dp"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:layout_below="@id/event_image"/>
+            android:layout_below="@id/event_image"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_image" />
 
         <TextView
             android:id="@+id/event_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/event_name"
-            android:textSize="16sp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_name" />
 
-        <ImageButton
-            android:id="@+id/event_delete"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_below="@id/event_image"
-            android:layout_alignEnd="@+id/event_image"
-            android:background="@color/colorPrimary"
-            android:src="@drawable/ic_delete" />
+        <TextView
+            android:id="@+id/event_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="@dimen/logo_height_plus_margin"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_desc" />
 
+        <TextView
+            android:id="@+id/event_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/logo_height_plus_margin"
+            android:textSize="@dimen/text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_date" />
 
-    </RelativeLayout>
+        <ImageView
+            android:id="@+id/event_author_image"
+            android:layout_width="@dimen/logo_height"
+            android:layout_height="@dimen/logo_height"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/event_desc"
+            android:layout_marginTop="8dp"
+            />
+
+    </android.support.constraint.ConstraintLayout>
 
 
 </android.support.v7.widget.CardView>

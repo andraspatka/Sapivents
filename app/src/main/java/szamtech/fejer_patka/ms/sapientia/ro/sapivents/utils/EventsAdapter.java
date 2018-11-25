@@ -2,11 +2,9 @@ package szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -49,18 +47,12 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
                 mEventListItemOnClickInterface.onClickEventItem(mEventsList.get(holder.getAdapterPosition()));
             }
         });
+        //TODO: onLongClickListener should only be set, when this adapter is called inside a user profile
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 mEventListItemOnClickInterface.onLongClickEventItem(mEventsList.get(holder.getAdapterPosition()));
                 return true;
-            }
-        });
-        //Set onClickListener for only the delete icon
-        holder.delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEventListItemOnClickInterface.onClickDeleteEvent(mEventsList.get(holder.getAdapterPosition()));
             }
         });
 
@@ -70,20 +62,29 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
     @Override
     public void onBindViewHolder(EventsAdapter.EventsViewHolder holder, int position) {
         Event event = mEventsList.get(position);
-        holder.name.setText(event.getName());
+        holder.name.setText(event.getTitle());
         //The description gets trimmed, only the first 100 characters are displayed
         if(event.getDescription().length() > 100){
             holder.desc.setText(event.getDescription().substring(0, 100) + "...");
         }else{
             holder.desc.setText(event.getDescription());
         }
+        holder.date.setText(event.getDate()+"");
+        //TODO format the location
+        holder.location.setText(event.getLocation());
 
-
-        //RequestOptions centerCrop() option makes the image fit the imageview fully
+        /*TODO: When Firebase is integrated, get the whole User object and get the profile image
         Glide.with(mContext)
-                .load(event.getImage())
-                .apply(new RequestOptions().centerCrop())
-                .into(holder.image);
+                .load(event.getAuthorId().getProfileImage())
+                .into(holder.author);
+        */
+        //RequestOptions centerCrop() option makes the image fit the imageview fully
+        if(event.getImages().size() > 0){
+            Glide.with(mContext)
+                    .load(event.getImages().get(0))
+                    .apply(new RequestOptions().centerCrop())
+                    .into(holder.image);
+        }
     }
 
     @Override
@@ -99,7 +100,9 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
         @BindView(R.id.event_name) TextView name;
         @BindView(R.id.event_desc) TextView desc;
         @BindView(R.id.event_image) ImageView image;
-        @BindView(R.id.event_delete) ImageButton delete;
+        @BindView(R.id.event_location) TextView location;
+        @BindView(R.id.event_date) TextView date;
+        @BindView(R.id.event_author_image) ImageView author;
 
         EventsViewHolder(View view) {
             super(view);
@@ -114,6 +117,5 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
     public interface EventListItemOnClickInterface {
         void onClickEventItem(Event event);
         void onLongClickEventItem(Event event);
-        void onClickDeleteEvent(Event event);
     }
 }

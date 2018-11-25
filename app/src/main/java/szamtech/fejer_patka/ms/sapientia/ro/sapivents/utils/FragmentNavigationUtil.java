@@ -15,6 +15,12 @@ import java.util.Stack;
  * Static methods, singleton class
  */
 public class FragmentNavigationUtil {
+    //Number of bottom navigation elements
+    public static final int NUMBER_OF_SCREENS = 3;
+    public static final int ACCOUNT_SCREEN = 0;
+    public static final int HOME_SCREEN = 1;
+    public static final int ADD_SCREEN = 2;
+
     private static ArrayList<Stack<Fragment>> sFragmentStacks = new ArrayList<>();
     private static final FragmentNavigationUtil SINGLE_INSTANCE = new FragmentNavigationUtil();
 
@@ -22,7 +28,7 @@ public class FragmentNavigationUtil {
      * Setup, create the stacks
      */
     private FragmentNavigationUtil(){
-        for(int i = 0; i< Constants.NUMBER_OF_SCREENS; ++i){
+        for(int i = 0; i< FragmentNavigationUtil.NUMBER_OF_SCREENS; ++i){
             sFragmentStacks.add(new Stack<Fragment>());
         }
     }
@@ -86,7 +92,7 @@ public class FragmentNavigationUtil {
      * @param viewId
      */
     public static void onTabSelected(Context context, int screen, Fragment fragment, int viewId) throws NoSuchScreenException{
-        if(screen >= Constants.NUMBER_OF_SCREENS){
+        if(screen >= FragmentNavigationUtil.NUMBER_OF_SCREENS){
             throw new NoSuchScreenException(screen);
         }
         // Pop off everything up to and including the current tab
