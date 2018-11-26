@@ -50,8 +50,10 @@ public class UserSignInFragment extends Fragment {
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
-
     private FirebaseAuth mAuth;
+
+    private String phoneNum = "+16505554567";
+    private String testVerificationCode = "123456";
 
     public UserSignInFragment() {
         // Required empty public constructor
@@ -91,7 +93,8 @@ public class UserSignInFragment extends Fragment {
     @OnClick(R.id.signIn_button) void signIn(View v){
         Log.v(TAG, "signIn btn pushed");
 
-        startPhoneNumberVerification(mPhoneNumber.getText().toString());
+        //testPhoneVerify();
+        startPhoneNumberVerification(phoneNum);
     }
 
     @Override
@@ -150,6 +153,7 @@ public class UserSignInFragment extends Fragment {
                 mVerificationId = verificationId;
                 mResendToken = token;
 
+                verifyPhoneNumberWithCode(mVerificationId, "123456");
             }
         };
 
@@ -169,7 +173,7 @@ public class UserSignInFragment extends Fragment {
         // [START start_phone_auth]
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                30L,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 getActivity(),               // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
@@ -181,9 +185,9 @@ public class UserSignInFragment extends Fragment {
     private void verifyPhoneNumberWithCode(String verificationId, String code) {
         // [START verify_with_code]
         Log.d(TAG, "verify: " + code);
-        //PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         // [END verify_with_code]
-        //signInWithPhoneAuthCredential(credential);
+        signInWithPhoneAuthCredential(credential);
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
@@ -231,7 +235,7 @@ public class UserSignInFragment extends Fragment {
                         Log.w(TAG, "Sign In btn pressed in sign in dialog");
                         EditText editText = (EditText) view.findViewById(R.id.sign_in_dialog_validation_code);
                         String code = editText.getText().toString();
-                        verifyPhoneNumberWithCode(mVerificationId, code);
+                        verifyPhoneNumberWithCode(mVerificationId, "610697");
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -240,5 +244,45 @@ public class UserSignInFragment extends Fragment {
                     }
                 });
         return builder.create();
+    }
+
+    public void testPhoneVerify() {
+        // [START auth_test_phone_verify]
+        String phoneNum = "+16505554567";
+        String testVerificationCode = "123456";
+
+        // Whenever verification is triggered with the whitelisted number,
+        // provided it is not set for auto-retrieval, onCodeSent will be triggered.
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phoneNum, 30L /*timeout*/, TimeUnit.SECONDS,
+                getActivity(), new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                    @Override
+                    public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                        // Sign in with the credential
+                        // ...
+                        Log.w(TAG, "Verification Completed");
+                    }
+
+                    @Override
+                    public void onCodeSent(String verificationId,
+                                           PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                        // Save the verification id somewhere
+                        // ...
+
+                        // The corresponding whitelisted code above should be used to complete sign-in.
+                        Log.w(TAG, "Code Sent");
+                        mVerificationId = verificationId;
+                        verifyPhoneNumberWithCode(mVerificationId, "123456");
+                    }
+
+                    @Override
+                    public void onVerificationFailed(FirebaseException e) {
+                        // ...
+                        Log.w(TAG, "Verification Failed" + e.getMessage());
+                    }
+
+                });
+        // [END auth_test_phone_verify]
     }
 }
