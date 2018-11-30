@@ -19,4 +19,10 @@
     <string name="event_detail_attending_label">Number of people attending: </string>
     <string name="event_detail_attend_button">Attend</string>
     <string name="event_detail_unattend_button">Unattend</string>
+    <string name="not_registered_button">Not registered?</string>
+    <string name="phone_number_textView_hint">Type your phone number</string>
+    <string name="firstName_editText">First name</string>
+    <string name="lastName_editText">Last name</string>
+    <string name="phoneNumber_editText">Phone number</string>
+    <string name="register_button">Sign Up</string>
 </resources>
