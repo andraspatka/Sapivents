@@ -8,19 +8,21 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.FrameLayout;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.DateTime;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileEditViewFragment;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserRegistrationFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserSignInFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.Constants;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final String TAG = "MainActivity";
 
     @BindView(R.id.bottom_nav) BottomNavigationView mBottomNavigationView;
+    @BindView(R.id.fragment_place) FrameLayout mFragmentPlace;
+    @BindView(R.id.skip_sign_in_btn) Button mSkipSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +46,32 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         prepareData();
         mBottomNavigationView.setVisibility(View.INVISIBLE);
 
+        //Create the UserSignInFragment
         UserSignInFragment userSignInFragment = new UserSignInFragment();
-        FragmentNavigationUtil.addFragmentOnTop(this, userSignInFragment, R.id.fragment_place_signin);
+        FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
 
+        UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
+        FragmentNavigationUtil.addFragmentToScreen(this,userRegistrationFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
+    }
+
+    /**
+     * This is just a temporary function
+     * I created this button so Norbert and I can easily debug our own portion of the Application
+     * This basically skips the sign in process.
+     * Later the code inside this function can be used when the registration is successful
+     * @param v
+     */
+    @OnClick(R.id.skip_sign_in_btn) void skipSignIn(View v){
+        //Remove the UserSignInFragment
+        FragmentNavigationUtil.popFragment(this, R.id.fragment_place);
+        //Get the bottom and top padding values
+        int bottomPaddingInPixels = (int) getResources().getDimension(R.dimen.bottom_nav_height);
+        int topPaddingInPixels = (int) getResources().getDimension(R.dimen.logo_height);
+        //Set the padding to the R.id.fragment_place FrameLayout
+        mFragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+        //Make the bottom navigation visible, and the userSignInButton invisible
+        mSkipSignInButton.setVisibility(View.INVISIBLE);
+        mBottomNavigationView.setVisibility(View.VISIBLE);
     }
     //TODO: remove this once Firebase is integrated to the project
     /**
@@ -80,33 +107,34 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int selectedId = mBottomNavigationView.getSelectedItemId();
+
         if(selectedId != item.getItemId()){
             switch(item.getItemId()){
                 case R.id.menu_account:
                     UserProfileEditViewFragment accountFragment = new UserProfileEditViewFragment();
-                    FragmentNavigationUtil.onTabSelected(
+                    FragmentNavigationUtil.screenSelected(
                             MainActivity.this,
-                            FragmentNavigationUtil.ACCOUNT_SCREEN,
                             accountFragment,
-                            R.id.fragment_place
+                            R.id.fragment_place,
+                            FragmentNavigationUtil.ACCOUNT_SCREEN
                     );
                     return true;
                 case R.id.menu_home:
                     EventListFragment listFragment = new EventListFragment();
-                    FragmentNavigationUtil.onTabSelected(
+                    FragmentNavigationUtil.screenSelected(
                             MainActivity.this,
-                            FragmentNavigationUtil.HOME_SCREEN,
                             listFragment,
-                            R.id.fragment_place
+                            R.id.fragment_place,
+                            FragmentNavigationUtil.HOME_SCREEN
                     );
                     return true;
                 case R.id.menu_add:
                     EventAddEditFragment fragment = EventAddEditFragment.newInstanceForAdding();
-                    FragmentNavigationUtil.onTabSelected(
+                    FragmentNavigationUtil.screenSelected(
                             MainActivity.this,
-                            FragmentNavigationUtil.ADD_SCREEN,
                             fragment,
-                            R.id.fragment_place
+                            R.id.fragment_place,
+                            FragmentNavigationUtil.ADD_SCREEN
                     );
                     return true;
             }
@@ -116,12 +144,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public void onBackPressed() {
-        if(FragmentNavigationUtil.isOnlyFragment(this)){
-            //super.onBackPressed();
+        //FragmentNavigationUtil.popFragment returns false if there is only one fragment in the stack
+        //In this case, a back press exits the application
+        if(!FragmentNavigationUtil.popFragment(this,R.id.fragment_place)){
             this.finishAffinity();
             Log.v(TAG,"Only fragment");
-        }else{
-            FragmentNavigationUtil.back(this,0);
         }
     }
 }

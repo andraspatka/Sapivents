@@ -1,153 +1,144 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils;
 
+import android.app.Activity;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.Stack;
 
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
+
 /**
- * WORK IN PROGRESS
+ * author: Patka Zsolt-Andras
  * Util class for Fragment navigation
  * Static methods, singleton class
  */
 public class FragmentNavigationUtil {
     //Number of bottom navigation elements
     public static final int NUMBER_OF_SCREENS = 3;
+    //Bottom navigation element indexes
     public static final int ACCOUNT_SCREEN = 0;
     public static final int HOME_SCREEN = 1;
     public static final int ADD_SCREEN = 2;
 
+    //Holds the fragment stacks for each screen
     private static ArrayList<Stack<Fragment>> sFragmentStacks = new ArrayList<>();
-
-    /**
-     * Setup, create the stacks
-     */
-    private FragmentNavigationUtil(){
+    //Static initializer block, used for initializing sFragmentStacks
+    static {
         for(int i = 0; i< FragmentNavigationUtil.NUMBER_OF_SCREENS; ++i){
             sFragmentStacks.add(new Stack<Fragment>());
         }
     }
+    /**
+     * Private constructor
+     */
+    private FragmentNavigationUtil(){}
 
     /**
-     * Adds a fragment on the given screen to the given view
-     * @param context Activity's context
-     * @param screen The screen where the fragment should be added
-     * @param fragment The Fragment to be added
-     * @param viewId The view's id in which the fragment should be added
-     * @param toBackStack add it to the backstack or not
-     * @throws NoSuchScreenException if the screen parameter is invalid
+     * author: Patka Zsolt-Andras
+     * @param context the Activity's context
+     * @param fragment the given fragment
+     * @param viewId the viewId in which the fragment should be placed
+     * @param screen the given bottom navigation element
+     * @throws NoSuchScreenException if an invalid screen is passed in
      */
-    /*Might not need it
-    public static void addFragment(Context context, int screen, Fragment fragment, int viewId, boolean toBackStack) throws NoSuchScreenException{
-        if(screen >= Constants.NUMBER_OF_SCREENS){
+    public static void screenSelected(Context context, Fragment fragment, int viewId, int screen) throws NoSuchScreenException{
+        if(screen > NUMBER_OF_SCREENS || screen < 0){
             throw new NoSuchScreenException(screen);
         }
+        //Get the fragment manager
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-        //Do the fragment transaction
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        if(toBackStack){
-            fragmentTransaction.add(viewId, fragment)
-                    .addToBackStack(null)
+        //Clear the backstack
+        fragmentManager.popBackStack();
+
+        //If the fragmentStack at the given screen is empty, add the fragment
+        if(sFragmentStacks.get(screen).isEmpty()){
+            fragmentManager
+                    .beginTransaction()
+                    .replace(viewId,fragment)
+                    .addToBackStack(screen+"")
                     .commit();
             sFragmentStacks.get(screen).add(fragment);
-        }else{
-            fragmentTransaction.add(viewId, fragment)
-                    .commit();
-        }
-    }*/
-    /*Might not need it
-    public static void loadStack(Context context, int screen, int viewId) throws NoSuchScreenException{
-        if(screen >= Constants.NUMBER_OF_SCREENS){
-            throw new NoSuchScreenException(screen);
-        }
-        if(!screenIsEmpty(screen)){
-            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-            //Do the fragment transaction
-            for(int i = 0; i < fragmentManager.getBackStackEntryCount(); ++i) {
-                fragmentManager.popBackStack();
-            }
-            for(int i=0; i < sFragmentStacks.get(screen).size(); ++i){
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.add(viewId, sFragmentStacks.get(screen).pop())
-                        .addToBackStack(null)
+        }else{//Load the fragments from the stack
+            for(int i=0; i<sFragmentStacks.get(screen).size(); ++i){
+                fragmentManager
+                        .beginTransaction()
+                        .replace(viewId,sFragmentStacks.get(screen).get(i))
+                        .addToBackStack(screen+"")
                         .commit();
             }
         }
-
-    }*/
-
-    /**
-     * EXPERIMENTAL
-     * @param context
-     * @param screen
-     * @param fragment
-     * @param viewId
-     */
-    public static void onTabSelected(Context context, int screen, Fragment fragment, int viewId) throws NoSuchScreenException{
-        if(screen >= FragmentNavigationUtil.NUMBER_OF_SCREENS){
-            throw new NoSuchScreenException(screen);
-        }
-        // Pop off everything up to and including the current tab
-        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-        fragmentManager.popBackStack(screen, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        // Add the new tab fragment
-        fragmentManager.beginTransaction()
-                .replace(viewId, fragment)
-                .addToBackStack(screen+"")
-                .commit();
     }
 
     /**
-     *  EXPERIMENTAL
-     * Add a fragment on top of the current tab
+     * author: Patka Zsolt-Andras
+     * Add a fragment to the given screen
+     * @param context Activity's context
+     * @param fragment given Fragment
+     * @param viewId the viewId in which the fragment should be placed
+     * @param screen bottom navigation element
+     * @throws NoSuchScreenException if an invalid screen is passed in
      */
-    public static void addFragmentOnTop(Context context, Fragment fragment, int viewId) {
+    public static void addFragmentToScreen(Context context, Fragment fragment, int viewId, int screen) throws NoSuchScreenException{
+        if(screen > NUMBER_OF_SCREENS || screen < 0){
+            throw new NoSuchScreenException(screen);
+        }
+        //Get the bottom navigation element
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) ((Activity) context).findViewById(R.id.bottom_nav);
+        //Select the appropriate bottom navigation element
+        switch(screen){
+            case HOME_SCREEN:
+                bottomNavigationView.setSelectedItemId(R.id.menu_home);
+                break;
+            case ACCOUNT_SCREEN:
+                bottomNavigationView.setSelectedItemId(R.id.menu_account);
+                break;
+            case ADD_SCREEN:
+                bottomNavigationView.setSelectedItemId(R.id.menu_add);
+                break;
+        }
+        //Add the screen to the stack
+        sFragmentStacks.get(screen).add(fragment);
+        //Get the FragmentManager
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        //Add the fragment to the backstack, using a tag (tag = screen + "")
         fragmentManager
                 .beginTransaction()
                 .replace(viewId, fragment)
-                .addToBackStack(null)
+                .addToBackStack(screen + "")
                 .commit();
     }
 
     /**
-     * Pop off one fragment a.k.a. go back
-     * @param context
-     * @param screen
+     * author: Patka Zsolt-Andras
+     * Pop off one fragment
+     * @param context Activity's context
+     * @param viewId View in which to put the fragment
+     * @return false if there is only one fragment remaining in the stack
      */
-    public static void back(Context context, int screen){
+    public static boolean popFragment(Context context, int viewId){
+        //Get the FragmentManager
         FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-        fragmentManager.popBackStack();
-    }
+        //Get the last backstack entry
+        FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount()-1);
+        //Check to see in which screen the last backstack entry was
+        String screenStr = backStackEntry.getName();
+        int screen = Integer.parseInt(screenStr);
+        if(sFragmentStacks.get(screen).size() >= 2){
+            sFragmentStacks.get(screen).pop();
 
-    /**
-     * Returns true if there is only one fragment in the backstack
-     * False otherwise
-     * @param context
-     * @return
-     */
-    public static boolean isOnlyFragment(Context context){
-        return ((FragmentActivity) context).getSupportFragmentManager().getBackStackEntryCount() == 1;
+            fragmentManager
+                    .beginTransaction()
+                    .replace(viewId, sFragmentStacks.get(screen).peek())
+                    .addToBackStack(screen + "")
+                    .commit();
+            return true;
+        }else return false;
     }
-
-    /**
-     * Checks to see whether or not the screen has any fragments loaded into it
-     * @param screen
-     * @return true if the screen's backstack is empty, false if it is not
-     * @throws NoSuchScreenException
-     */
-    /*Might be uneeded
-    public static boolean screenIsEmpty(int screen) throws NoSuchScreenException{
-        if(screen >= Constants.NUMBER_OF_SCREENS){
-            throw new NoSuchScreenException(screen);
-        }
-        return sFragmentStacks.get(screen).isEmpty();
-    }*/
 
     /**
      * Custom exception class
