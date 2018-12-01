@@ -92,10 +92,11 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
     @Override
     public void onClickEventItem(Event event) {
         EventDetailFragment eventDetailFragment = EventDetailFragment.newInstance(event);
-        FragmentNavigationUtil.addFragmentOnTop(
+        FragmentNavigationUtil.addFragmentToScreen(
                 getContext(),
                 eventDetailFragment,
-                R.id.fragment_place
+                R.id.fragment_place,
+                FragmentNavigationUtil.HOME_SCREEN
         );
     }
 
@@ -120,10 +121,11 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                         switch(which){
                             case 0:
                                 EventAddEditFragment eventAddEditFragment = EventAddEditFragment.newInstanceForEditing(event);
-                                FragmentNavigationUtil.addFragmentOnTop(
+                                FragmentNavigationUtil.addFragmentToScreen(
                                         getContext(),
                                         eventAddEditFragment,
-                                        R.id.fragment_place);
+                                        R.id.fragment_place,
+                                        FragmentNavigationUtil.HOME_SCREEN);
                                 break;
                             case 1:
                                 EventPrefUtil.removeEvent(getActivity(), event.getId() + "");

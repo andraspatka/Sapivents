@@ -116,7 +116,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
 
     /**
      * Save the event, whether it was opened for editing or adding
-     * @param v
+     * @param v button's view
      */
     @OnClick(R.id.event_edit_add_save_button) void saveEvent(View v){
 
@@ -147,10 +147,20 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             Log.v(TAG, sEvent.toString());
             //Save the event
             EventPrefUtil.saveEvent(getActivity(),sEvent.getId()+"",sEvent);
-            //Remove this fragment from the backstack
-            FragmentNavigationUtil.back(getActivity(), 0);
+            //If it's open for editing, then we are in the same navigation tab,
+            //so FragmentNavigationUtil.popFragment method is appropriate
+            if(sIsOpenForEditing){
+                FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
+            }
+            //Get the BottomNavigationView and set the appropriate icon as selected
             BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
             bottomNavigationView.setSelectedItemId(R.id.menu_home);
+
+            //Clear input fields
+            eventNameEditText.setText("");
+            eventDescEditText.setText("");
+            eventDateEditText.setText("");
+            eventLocationEditText.setText("");
         }
     }
 
