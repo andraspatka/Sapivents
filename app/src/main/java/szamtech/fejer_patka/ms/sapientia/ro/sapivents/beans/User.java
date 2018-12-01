@@ -1,5 +1,6 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans;
 
+import android.app.Dialog;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;

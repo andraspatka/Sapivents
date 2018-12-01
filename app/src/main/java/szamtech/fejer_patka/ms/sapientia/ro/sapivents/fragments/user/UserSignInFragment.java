@@ -1,11 +1,7 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,25 +9,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FirebaseAuthUtil;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
 /**
  * Fragment for User sign in
@@ -40,20 +26,13 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 public class UserSignInFragment extends Fragment {
 
     @BindView(R.id.signIn_button) Button signInButton;
+    @BindView(R.id.register_button) Button signUpButton;
     @BindView(R.id.phoneNumber_textView) TextView mPhoneNumber;
 
     private static final String TAG = "SIGNIN_FRAGMENT";
     private static final String KEY_VERIFY_IN_PROGRESS = "key_verify_in_progress";
 
-    private boolean mVerificationInProgress = false;
-    private String mVerificationId;
-    private PhoneAuthProvider.ForceResendingToken mResendToken;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
-
-    private FirebaseAuth mAuth;
-
-    private String phoneNum = "+16505554567";
-    private String testVerificationCode = "123456";
+    private FirebaseAuthUtil firebaseAuthUtil;
 
     public UserSignInFragment() {
         // Required empty public constructor
@@ -75,9 +54,9 @@ public class UserSignInFragment extends Fragment {
         }
 
         // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
-
-        createCallback();
+        firebaseAuthUtil = new FirebaseAuthUtil(getActivity());
+        firebaseAuthUtil.initializeFirebaseAuth();
+        firebaseAuthUtil.createCallback();
     }
 
     @Override
@@ -93,162 +72,24 @@ public class UserSignInFragment extends Fragment {
     @OnClick(R.id.signIn_button) void signIn(View v){
         EditText phoneNumber = (EditText) getActivity().findViewById(R.id.phoneNumber_textView);
         Log.v(TAG, "signIn btn pushed with code: " + phoneNumber.getText().toString());
-        startPhoneNumberVerification(phoneNumber.getText().toString());
+        firebaseAuthUtil.startPhoneNumberVerification(phoneNumber.getText().toString());
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_VERIFY_IN_PROGRESS, mVerificationInProgress);
+    @OnClick(R.id.register_button) void signUp(View v){
+        Log.v(TAG, "signUp btn pushed with code: ");
+        UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
+        FragmentNavigationUtil.addFragmentOnTop(getActivity(), userRegistrationFragment, R.id.fragment_place);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState != null){
-            mVerificationInProgress = savedInstanceState.getBoolean(KEY_VERIFY_IN_PROGRESS);
-        }
-    }
-
-    private void createCallback() {
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-            @Override
-            public void onVerificationCompleted(PhoneAuthCredential credential) {
-                Log.d(TAG, "onVerificationCompleted:" + credential);
-                mVerificationInProgress = false;
-
-                Dialog dialog = verificationDialog();
-                dialog.show();
-            }
-
-            @Override
-            public void onVerificationFailed(FirebaseException e) {
-                Log.w(TAG, "onVerificationFailed", e);
-
-                mVerificationInProgress = false;
-
-                if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                    // Invalid request
-                    Toast.makeText(getActivity(),"Invalid request!",Toast.LENGTH_SHORT).show();
-                } else if (e instanceof FirebaseTooManyRequestsException) {
-                    // The SMS quota for the project has been exceeded
-                    Toast.makeText(getActivity(),"The SMS quota for the project has been exceeded!",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onCodeSent(String verificationId,
-                                   PhoneAuthProvider.ForceResendingToken token) {
-                Log.d(TAG, "onCodeSent:" + verificationId);
-
-                // Save verification ID and resending token so we can use them later
-                mVerificationId = verificationId;
-                mResendToken = token;
-
-            }
-        };
-
-    }
     @Override
     public void onStart(){
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = firebaseAuthUtil.getFirebaseUser();
 
         if(currentUser != null){
             Log.d(TAG, "Current user logged in");
         }
     }
 
-    private void startPhoneNumberVerification(String phoneNumber) {
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                phoneNumber,        // Phone number to verify
-                30L,                 // Timeout duration
-                TimeUnit.SECONDS,   // Unit of timeout
-                getActivity(),               // Activity (for callback binding)
-                mCallbacks);        // OnVerificationStateChangedCallbacks
-
-        mVerificationInProgress = true;
-    }
-
-    private void verifyPhoneNumberWithCode(String verificationId, String code) {
-
-        Log.d(TAG, "verify: " + code);
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-
-        signInWithPhoneAuthCredential(credential);
-    }
-
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-
-                            FirebaseUser user = task.getResult().getUser();
-                            if(user.isAnonymous()){
-                                Log.d(TAG, "New user");
-                            }
-                            else{
-                                Log.d(TAG, "Registered user");
-                            }
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            Log.w(TAG, "signInWithCredential:failure");
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                // The verification code entered was invalid
-                                Toast.makeText(getActivity(),"The verification code entered was invalid!",Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                });
-    }
-
-    public Dialog verificationDialog() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        final View view = inflater.inflate(R.layout.sign_in_dialog, null);
-        builder.setView(view)
-                // Add action buttons
-                .setPositiveButton("Sign In", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.w(TAG, "Sign In btn pressed in sign in dialog");
-
-                        EditText editText = (EditText) view.findViewById(R.id.sign_in_dialog_validation_code);
-                        Log.w(TAG, "Ver code from edittext: " + editText.getText().toString());
-                        verifyPhoneNumberWithCode(mVerificationId, editText.getText().toString());
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.w(TAG, "Cancel btn pressed in sign in dialog");
-                    }
-                });
-        return builder.create();
-    }
-
-    private void resendVerificationCode(String phoneNumber,
-                                        PhoneAuthProvider.ForceResendingToken token) {
-        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
-                TimeUnit.SECONDS,   // Unit of timeout
-                getActivity(),               // Activity (for callback binding)
-                mCallbacks,         // OnVerificationStateChangedCallbacks
-                token);             // ForceResendingToken from callbacks
-    }
-
-    private void signOut() {
-        mAuth.signOut();
-    }
 }

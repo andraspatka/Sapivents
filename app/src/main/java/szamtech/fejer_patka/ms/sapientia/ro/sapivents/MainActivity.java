@@ -19,6 +19,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileEditViewFragment;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserRegistrationFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserSignInFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.Constants;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         UserSignInFragment userSignInFragment = new UserSignInFragment();
         FragmentNavigationUtil.addFragmentOnTop(this, userSignInFragment, R.id.fragment_place_signin);
+
+        /*UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
+        FragmentNavigationUtil.addFragmentOnTop(this, userRegistrationFragment, R.id.fragment_place_signin);*/
 
     }
     //TODO: remove this once Firebase is integrated to the project

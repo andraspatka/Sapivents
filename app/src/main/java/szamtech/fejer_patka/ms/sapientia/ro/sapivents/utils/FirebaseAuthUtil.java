@@ -31,7 +31,7 @@ import butterknife.BindView;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserRegistrationFragment;
 
-public class FirebaseAuthUtils {
+public class FirebaseAuthUtil {
 
     private static final String TAG = "FIREBASE_AUTH_UTILS";
     private final Context mContext;
@@ -43,7 +43,7 @@ public class FirebaseAuthUtils {
 
     private FirebaseAuth mAuth;
 
-    public FirebaseAuthUtils(Context context) {
+    public FirebaseAuthUtil(Context context) {
         mContext = context;
     }
 
@@ -51,7 +51,7 @@ public class FirebaseAuthUtils {
         mAuth = FirebaseAuth.getInstance();
     }
 
-    private void createCallback() {
+    public void createCallback() {
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
             @Override
@@ -92,7 +92,7 @@ public class FirebaseAuthUtils {
         };
     }
 
-    private void startPhoneNumberVerification(String phoneNumber) {
+    public void startPhoneNumberVerification(String phoneNumber) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
                 30L,                 // Timeout duration
@@ -103,7 +103,7 @@ public class FirebaseAuthUtils {
         mVerificationInProgress = true;
     }
 
-    private void verifyPhoneNumberWithCode(String verificationId, String code) {
+    public void verifyPhoneNumberWithCode(String verificationId, String code) {
 
         Log.d(TAG, "verify: " + code);
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
@@ -111,7 +111,7 @@ public class FirebaseAuthUtils {
         signInWithPhoneAuthCredential(credential);
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+    public void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener((Activity) mContext, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -121,22 +121,11 @@ public class FirebaseAuthUtils {
                             Log.d(TAG, "signInWithCredential:success");
 
                             FirebaseUser user = task.getResult().getUser();
-                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                                Log.d(TAG, "New unregistered user");
-                                UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
-                                FragmentNavigationUtil.addFragmentOnTop(mContext, userRegistrationFragment, szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.id.fragment_place_signin);
+                            if(task.getResult().getAdditionalUserInfo().isNewUser() || user.getDisplayName() == ""){
+                                Log.d(TAG, "New user");
                             }
                             else{
-                                if(user.getDisplayName() == "") {
-                                    Log.d(TAG, "New registered user");
-                                    UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
-                                    FragmentNavigationUtil.addFragmentOnTop(mContext, userRegistrationFragment, szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.id.fragment_place_signin);
-                                }
-                                else {
-                                    Log.d(TAG, "Existing user");
-                                    EventListFragment eventListFragment = new EventListFragment();
-                                    FragmentNavigationUtil.addFragmentOnTop(mContext, eventListFragment, szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.id.fragment_place_signin);
-                                }
+                                Log.d(TAG, "Existing user");
                             }
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -178,7 +167,7 @@ public class FirebaseAuthUtils {
         return builder.create();
     }
 
-    private void resendVerificationCode(String phoneNumber,
+    public void resendVerificationCode(String phoneNumber,
                                         PhoneAuthProvider.ForceResendingToken token) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
@@ -189,7 +178,19 @@ public class FirebaseAuthUtils {
                 token);             // ForceResendingToken from callbacks
     }
 
-    private void signOut() {
+    public void signOut() {
         mAuth.signOut();
+    }
+
+    public boolean getVerificationInProgress() {
+        return mVerificationInProgress;
+    }
+
+    public void setVerificationInProgress(Boolean verificationInProgress){
+        mVerificationInProgress = verificationInProgress;
+    }
+
+    public FirebaseUser getFirebaseUser(){
+        return mAuth.getCurrentUser();
     }
 }

@@ -7,7 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 
 /**
