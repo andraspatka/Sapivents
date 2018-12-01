@@ -22,7 +22,7 @@ Each of these constant values are an index in this data structure:
     //Holds the fragment stacks for each screen
     private static ArrayList<Stack<Fragment>> sFragmentStacks = new ArrayList<>();
 ```
-![Bottom navigation](\Documentation\md-res\bottomNav.PNG)<br/>
+![Bottom navigation](https://github.com/andraspatka/Sapivents/blob/development/Documentation/md-res/bottomNav.PNG)<br/>
 Each stack corresponds to a bottom navigation elemenet (tab)<br/>
 When a tab is selected this method is invoked:<br/>
 Basically if a tab was selected and there are no Fragment entries for that tab in sFragmentStacks then the fragment parameter is added to the required stack.<br/>
