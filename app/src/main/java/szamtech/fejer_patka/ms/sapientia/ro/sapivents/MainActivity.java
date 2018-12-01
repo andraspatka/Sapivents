@@ -49,12 +49,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //Create the UserSignInFragment
         UserSignInFragment userSignInFragment = new UserSignInFragment();
         FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
-
-        /*UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
-        FragmentNavigationUtil.addFragmentOnTop(this, userRegistrationFragment, R.id.fragment_place_signin);*/
-
-        UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
-        FragmentNavigationUtil.addFragmentToScreen(this,userRegistrationFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
     }
 
     /**

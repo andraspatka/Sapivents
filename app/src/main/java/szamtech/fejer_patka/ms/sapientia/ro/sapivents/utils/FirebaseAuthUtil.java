@@ -9,32 +9,27 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
 
-import butterknife.BindView;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserRegistrationFragment;
-
 public class FirebaseAuthUtil {
 
     private static final String TAG = "FIREBASE_AUTH_UTILS";
     private final Context mContext;
+    private Dialog loadingDialog = null;
 
     private boolean mVerificationInProgress = false;
     private String mVerificationId;
@@ -49,14 +44,23 @@ public class FirebaseAuthUtil {
 
     public void initializeFirebaseAuth(){
         mAuth = FirebaseAuth.getInstance();
+        createCallback();
     }
 
-    public void createCallback() {
+    private void createCallback() {
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
                 Log.d(TAG, "onVerificationCompleted:" + credential);
+
+                if(loadingDialog != null){
+                    if(loadingDialog.isShowing()){
+                        loadingDialog.dismiss();
+                        loadingDialog = null;
+                    }
+                }
+
                 mVerificationInProgress = false;
 
                 Dialog dialog = verificationDialog();
@@ -67,32 +71,48 @@ public class FirebaseAuthUtil {
             public void onVerificationFailed(FirebaseException e) {
                 Log.w(TAG, "onVerificationFailed", e);
 
+                if(loadingDialog != null){
+                    if(loadingDialog.isShowing()){
+                        loadingDialog.dismiss();
+                        loadingDialog = null;
+                    }
+                }
+
                 mVerificationInProgress = false;
 
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     Toast.makeText(mContext,"Invalid request!",Toast.LENGTH_SHORT).show();
-                } else if (e instanceof FirebaseTooManyRequestsException) {
-                    // The SMS quota for the project has been exceeded
-                    Toast.makeText(mContext,"The SMS quota for the project has been exceeded!",Toast.LENGTH_SHORT).show();
+                } else {
+                    if (e instanceof FirebaseTooManyRequestsException) {
+                        // The SMS quota for the project has been exceeded
+                        Toast.makeText(mContext, "The SMS quota for the project has been exceeded!", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (e instanceof FirebaseNetworkException){
+                        Toast.makeText(mContext, "Network error!", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
 
             @Override
-            public void onCodeSent(String verificationId,
-                                   PhoneAuthProvider.ForceResendingToken token) {
+            public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
                 Log.d(TAG, "onCodeSent:" + verificationId);
 
                 // Save verification ID and resending token so we can use them later
                 mVerificationId = verificationId;
                 mResendToken = token;
-
             }
         };
     }
 
     public void startPhoneNumberVerification(String phoneNumber) {
+
+        loadingDialog = loadingDialog();
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setCancelable(false);
+        loadingDialog.show();
+
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
                 30L,                 // Timeout duration
@@ -103,7 +123,7 @@ public class FirebaseAuthUtil {
         mVerificationInProgress = true;
     }
 
-    public void verifyPhoneNumberWithCode(String verificationId, String code) {
+    private void verifyPhoneNumberWithCode(String verificationId, String code) {
 
         Log.d(TAG, "verify: " + code);
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
@@ -111,7 +131,7 @@ public class FirebaseAuthUtil {
         signInWithPhoneAuthCredential(credential);
     }
 
-    public void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener((Activity) mContext, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -120,13 +140,6 @@ public class FirebaseAuthUtil {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
 
-                            FirebaseUser user = task.getResult().getUser();
-                            if(task.getResult().getAdditionalUserInfo().isNewUser() || user.getDisplayName() == ""){
-                                Log.d(TAG, "New user");
-                            }
-                            else{
-                                Log.d(TAG, "Existing user");
-                            }
                         } else {
                             // Sign in failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure");
@@ -139,7 +152,7 @@ public class FirebaseAuthUtil {
                 });
     }
 
-    public Dialog verificationDialog() {
+    private Dialog verificationDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         // Get the layout inflater
         LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
@@ -186,11 +199,23 @@ public class FirebaseAuthUtil {
         return mVerificationInProgress;
     }
 
-    public void setVerificationInProgress(Boolean verificationInProgress){
-        mVerificationInProgress = verificationInProgress;
+    public FirebaseAuth getFirebaseAuth(){
+        return mAuth;
     }
 
-    public FirebaseUser getFirebaseUser(){
-        return mAuth.getCurrentUser();
+    public void myAddAuthStateListener(FirebaseAuth.AuthStateListener authStateListener){
+        mAuth.addAuthStateListener(authStateListener);
+    }
+
+    private Dialog loadingDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        // Get the layout inflater
+        LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
+
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        final View view = inflater.inflate(szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.layout.loading_dialog, null);
+        builder.setView(view);
+        return builder.create();
     }
 }
