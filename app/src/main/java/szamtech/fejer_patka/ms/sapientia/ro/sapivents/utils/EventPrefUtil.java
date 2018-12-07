@@ -53,7 +53,7 @@ public class EventPrefUtil {
      * @param context application context
      * @return the event at {@param key}
      */
-    public static Event getContact(Context context, String key) {
+    public static Event getEvent(Context context, String key) {
         Gson gson = new Gson();
         String json = getPreferences(context).getString(key,"");
 
@@ -125,7 +125,7 @@ public class EventPrefUtil {
             Map<String, ?> contacts = getPreferences(context).getAll();
             List<Event> eventList = new ArrayList<>();
             for ( String key : contacts.keySet() ) {
-                eventList.add(getContact(context, key));
+                eventList.add(getEvent(context, key));
             }
             Log.d(TAG, eventList.toString());
             return eventList;

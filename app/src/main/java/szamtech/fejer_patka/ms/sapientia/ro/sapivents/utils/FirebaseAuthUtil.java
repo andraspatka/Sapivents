@@ -25,17 +25,22 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
 
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
+
 public class FirebaseAuthUtil {
 
     private static final String TAG = "FIREBASE_AUTH_UTILS";
     private final Context mContext;
     private Dialog loadingDialog = null;
 
+    private boolean isCodeSent = false;
+
     private boolean mVerificationInProgress = false;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
+    private PhoneAuthProvider mPhoneAuth;
     private FirebaseAuth mAuth;
 
     public FirebaseAuthUtil(Context context) {
@@ -49,10 +54,12 @@ public class FirebaseAuthUtil {
 
     private void createCallback() {
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
+            //Called when auto-retrieval is possible
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
-                Log.d(TAG, "onVerificationCompleted:" + credential);
+                Log.d(TAG, "onVerificationCompleted: " + credential.getSignInMethod() + " " + credential.getProvider());
+
+                mVerificationInProgress = false;
 
                 if(loadingDialog != null){
                     if(loadingDialog.isShowing()){
@@ -61,15 +68,18 @@ public class FirebaseAuthUtil {
                     }
                 }
 
-                mVerificationInProgress = false;
-
-                Dialog dialog = verificationDialog();
-                dialog.show();
+                signInWithPhoneAuthCredential(credential);
+            }
+            //Called when the timeout duration for auto-retrieval ended
+            @Override
+            public void onCodeAutoRetrievalTimeOut(String verificationId){
+                Log.v(TAG, "---onCodeAuthRetrievalTimeOut---");
+                verificationDialog();
             }
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                Log.w(TAG, "onVerificationFailed", e);
+                Log.v(TAG, "onVerificationFailed", e);
 
                 if(loadingDialog != null){
                     if(loadingDialog.isShowing()){
@@ -102,6 +112,16 @@ public class FirebaseAuthUtil {
                 // Save verification ID and resending token so we can use them later
                 mVerificationId = verificationId;
                 mResendToken = token;
+                isCodeSent = true;
+
+                if(loadingDialog != null){
+                    if(loadingDialog.isShowing()){
+                        loadingDialog.dismiss();
+                        loadingDialog = null;
+                    }
+                }
+
+                verificationDialog().show();
             }
         };
     }
@@ -115,7 +135,7 @@ public class FirebaseAuthUtil {
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                30L,                 // Timeout duration
+                5,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 (Activity) mContext,               // Activity (for callback binding)
                 mCallbacks);        // OnVerificationStateChangedCallbacks
@@ -138,11 +158,11 @@ public class FirebaseAuthUtil {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
+                            Log.v(TAG, "signInWithCredential: success");
 
                         } else {
                             // Sign in failed, display a message and update the UI
-                            Log.w(TAG, "signInWithCredential:failure");
+                            Log.v(TAG, "signInWithCredential: failure");
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
                                 Toast.makeText(mContext,"The verification code entered was invalid!",Toast.LENGTH_SHORT).show();
@@ -153,13 +173,14 @@ public class FirebaseAuthUtil {
     }
 
     private Dialog verificationDialog() {
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         // Get the layout inflater
         LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        final View view = inflater.inflate(szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.layout.sign_in_dialog, null);
+        final View view = inflater.inflate(R.layout.sign_in_dialog, null);
         builder.setView(view)
                 // Add action buttons
                 .setPositiveButton("Sign In", new DialogInterface.OnClickListener() {
@@ -167,7 +188,7 @@ public class FirebaseAuthUtil {
                     public void onClick(DialogInterface dialog, int id) {
                         Log.w(TAG, "Sign In btn pressed in sign in dialog");
 
-                        EditText editText = (EditText) view.findViewById(szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.id.sign_in_dialog_validation_code);
+                        EditText editText = (EditText) view.findViewById(R.id.sign_in_dialog_validation_code);
                         Log.w(TAG, "Ver code from edittext: " + editText.getText().toString());
                         verifyPhoneNumberWithCode(mVerificationId, editText.getText().toString());
                     }
@@ -184,7 +205,7 @@ public class FirebaseAuthUtil {
                                         PhoneAuthProvider.ForceResendingToken token) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                5,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 (Activity) mContext,               // Activity (for callback binding)
                 mCallbacks,         // OnVerificationStateChangedCallbacks

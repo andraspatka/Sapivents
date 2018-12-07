@@ -3,6 +3,9 @@
 ## You can find the project specification [here](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Specification.pdf)
 ## [Project styleguide](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Styleguide.pdf)
 
+#WORK IN PROGRESS
+#Encounter with dragons is highly possible. You've been warned!
+
 # Some explanation to the classes in the util package:
 ## [EventPrefUtil.java](https://github.com/andraspatka/Sapivents/blob/development/app/src/main/java/szamtech/fejer_patka/ms/sapientia/ro/sapivents/utils/EventPrefUtil.java)
 This class is used for storing Event objects in SharedPreferences.<br/>  Will be removed once Firebase is fully integrated into the project
@@ -96,6 +99,29 @@ Add fragment to a given screen (tab)
                     .commit();
     }
 ```
+Add a fragment so it's the only one in the backstack
+```java
+    public static void addAsSingleFragment(Context context, Fragment fragment, int viewId, int screen) throws NoSuchScreenException{
+        if(screen > NUMBER_OF_SCREENS || screen < 0){
+            throw new NoSuchScreenException(screen);
+        }
+        //Get the fragment manager
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        //Clear the backstack
+        fragmentManager.popBackStack();
+        //Clear the stack corresponding to the given screen
+        sFragmentStacks.get(screen).clear();
+
+        fragmentManager
+                .beginTransaction()
+                .replace(viewId,fragment)
+                .addToBackStack(screen+"")
+                .commit();
+        sFragmentStacks.get(screen).add(fragment);
+    }
+```
+
+
 Pop off a fragment<br/>
 Returns false if the fragment is the last one in the given screen. True otherwise
 ```java

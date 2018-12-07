@@ -75,6 +75,36 @@ public class FragmentNavigationUtil {
     }
 
     /**
+     * The point of this method is to have ONLY one fragment in the backstack
+     * Clears the backstack and the stack that corresponds to the given screen
+     * @param context Activity's context
+     * @param fragment the fragment to be loaded
+     * @param viewId the place where to load the fragment to
+     * @param screen Screen (Account, Home or Add)
+     * @throws NoSuchScreenException If the given screen value is invalid
+     */
+    public static void addAsSingleFragment(Context context, Fragment fragment, int viewId, int screen) throws NoSuchScreenException{
+        if(screen > NUMBER_OF_SCREENS || screen < 0){
+            throw new NoSuchScreenException(screen);
+        }
+        //Get the fragment manager
+        FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+        //Clear the backstack
+        fragmentManager.popBackStack();
+        //Clear the stack corresponding to the given screen
+        sFragmentStacks.get(screen).clear();
+
+        fragmentManager
+                .beginTransaction()
+                .replace(viewId,fragment)
+                .addToBackStack(screen+"")
+                .commit();
+        sFragmentStacks.get(screen).add(fragment);
+    }
+
+
+
+    /**
      * author: Patka Zsolt-Andras
      * Add a fragment to the given screen
      * @param context Activity's context

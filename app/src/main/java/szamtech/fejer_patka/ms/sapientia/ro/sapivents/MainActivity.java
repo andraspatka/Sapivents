@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -21,7 +24,6 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileEditViewFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserRegistrationFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserSignInFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
@@ -32,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @BindView(R.id.bottom_nav) BottomNavigationView mBottomNavigationView;
     @BindView(R.id.fragment_place) FrameLayout mFragmentPlace;
-    @BindView(R.id.skip_sign_in_btn) Button mSkipSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,34 +43,36 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         ButterKnife.bind(this);
         //Bottom navigation
-        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
+
         prepareData();
-        mBottomNavigationView.setVisibility(View.INVISIBLE);
+        mBottomNavigationView.setSelectedItemId(R.id.menu_home);
 
-        //Create the UserSignInFragment
-        UserSignInFragment userSignInFragment = new UserSignInFragment();
-        FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
+        //If the user is not authenticated, call this sign in fragment
+        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+            //Create the UserSignInFragment
+            UserSignInFragment userSignInFragment = new UserSignInFragment();
+            FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
+            mBottomNavigationView.setVisibility(View.INVISIBLE);
+        }else{
+            int bottomPaddingInPixels = (int) getResources().getDimension(R.dimen.bottom_nav_height);
+            int topPaddingInPixels = (int) getResources().getDimension(R.dimen.logo_height);
+            //Set the padding to the R.id.fragment_place FrameLayout
+            mFragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+            //Make the bottom navigation visible, and the userSignInButton invisible
+            mBottomNavigationView.setVisibility(View.VISIBLE);
+
+            EventListFragment listFragment = new EventListFragment();
+            FragmentNavigationUtil.screenSelected(
+                    MainActivity.this,
+                    listFragment,
+                    R.id.fragment_place,
+                    FragmentNavigationUtil.HOME_SCREEN
+            );
+        }
+
+        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
     }
 
-    /**
-     * This is just a temporary function
-     * I created this button so Norbert and I can easily debug our own portion of the Application
-     * This basically skips the sign in process.
-     * Later the code inside this function can be used when the registration is successful
-     * @param v
-     */
-    @OnClick(R.id.skip_sign_in_btn) void skipSignIn(View v){
-        //Remove the UserSignInFragment
-        FragmentNavigationUtil.popFragment(this, R.id.fragment_place);
-        //Get the bottom and top padding values
-        int bottomPaddingInPixels = (int) getResources().getDimension(R.dimen.bottom_nav_height);
-        int topPaddingInPixels = (int) getResources().getDimension(R.dimen.logo_height);
-        //Set the padding to the R.id.fragment_place FrameLayout
-        mFragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
-        //Make the bottom navigation visible, and the userSignInButton invisible
-        mSkipSignInButton.setVisibility(View.INVISIBLE);
-        mBottomNavigationView.setVisibility(View.VISIBLE);
-    }
     //TODO: remove this once Firebase is integrated to the project
     /**
      * Saves a list of generated Event objects to SharedPreferences using the EventPrefUtil class
@@ -97,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     /**
      * Callback method for bottom navigation
-     * WORK IN PROGRESS
      * @param item
      * @return
      */
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int selectedId = mBottomNavigationView.getSelectedItemId();
 
+        //If the user clicks on the currently selected element, then don't load any fragments
         if(selectedId != item.getItemId()){
             switch(item.getItemId()){
                 case R.id.menu_account:

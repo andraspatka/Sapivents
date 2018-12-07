@@ -1,7 +1,9 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,14 +45,10 @@ public class UserSignInFragment extends Fragment {
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuthUtil firebaseAuthUtil;
+    private Activity mActivity;
 
     public UserSignInFragment() {
         // Required empty public constructor
-    }
-
-    public static UserSignInFragment newInstance() {
-        UserSignInFragment fragment = new UserSignInFragment();
-        return fragment;
     }
 
     @Override
@@ -65,6 +64,7 @@ public class UserSignInFragment extends Fragment {
         // Initialize Firebase Auth
         firebaseAuthUtil = new FirebaseAuthUtil(getActivity());
         firebaseAuthUtil.initializeFirebaseAuth();
+        mActivity = getActivity();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -75,9 +75,25 @@ public class UserSignInFragment extends Fragment {
                     FirebaseAuth auth = firebaseAuthUtil.getFirebaseAuth();
                     FirebaseUser user = auth.getCurrentUser();
                     if (user != null && user.getDisplayName() != null) {
+                        //The user registered successfully, so redirect him to the EventListFragment
+                        //Set the bottom and top padding
+                        int bottomPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.bottom_nav_height);
+                        int topPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.logo_height);
+                        //Get the fragment_place FrameLayout
+                        FrameLayout fragmentPlace = (FrameLayout) mActivity.findViewById(R.id.fragment_place);
+                        //Get the bottom nav
+                        BottomNavigationView bottomNav = (BottomNavigationView) mActivity.findViewById(R.id.bottom_nav);
+                        //Set home as the selected bottom navigation item
+                        bottomNav.setSelectedItemId(R.id.menu_home);
+                        //Set the padding to the R.id.fragment_place FrameLayout
+                        fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+                        //Make the bottom navigation visible
+                        bottomNav.setVisibility(View.VISIBLE);
+
+                        //Add the fragment
                         EventListFragment listFragment = new EventListFragment();
-                        FragmentNavigationUtil.addFragmentToScreen(
-                                getActivity(),
+                        FragmentNavigationUtil.addAsSingleFragment(
+                                mActivity,
                                 listFragment,
                                 R.id.fragment_place,
                                 FragmentNavigationUtil.HOME_SCREEN
@@ -116,26 +132,6 @@ public class UserSignInFragment extends Fragment {
         Log.v(TAG, "notRegisteredBtn pushed");
         UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
         FragmentNavigationUtil.addFragmentToScreen(getActivity(), userRegistrationFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
-    }
-
-    @Override
-    public void onStart(){
-        super.onStart();
-
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = firebaseAuthUtil.getFirebaseAuth().getCurrentUser();
-
-        if(currentUser != null){
-            Log.d(TAG, "Current user logged in");
-
-            EventListFragment listFragment = new EventListFragment();
-            FragmentNavigationUtil.addFragmentToScreen(
-                    getActivity(),
-                    listFragment,
-                    R.id.fragment_place,
-                    FragmentNavigationUtil.HOME_SCREEN
-            );
-        }
     }
 
     private boolean isValidPhoneNumber(String phoneNumber){

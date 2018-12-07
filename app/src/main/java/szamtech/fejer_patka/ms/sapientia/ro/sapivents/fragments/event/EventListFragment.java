@@ -77,7 +77,6 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
         mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
         //Set the adapter to the recyclerview
         recyclerView.setAdapter(mEventsAdapter);
-        Log.d(TAG, mEvents.toString());
         //Notify the adapter that the dataset has been refreshed
         mEventsAdapter.notifyDataSetChanged();
     }
