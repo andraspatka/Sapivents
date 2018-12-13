@@ -3,8 +3,8 @@
 ## You can find the project specification [here](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Specification.pdf)
 ## [Project styleguide](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Styleguide.pdf)
 
-#WORK IN PROGRESS
-#Encounter with dragons is highly possible. You've been warned!
+# WORK IN PROGRESS
+# Encounter with dragons is highly possible. You've been warned!
 
 # Some explanation to the classes in the util package:
 ## [EventPrefUtil.java](https://github.com/andraspatka/Sapivents/blob/development/app/src/main/java/szamtech/fejer_patka/ms/sapientia/ro/sapivents/utils/EventPrefUtil.java)
