@@ -1,7 +1,5 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -27,6 +25,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUt
 public class UserProfileEditViewFragment extends Fragment {
 
     @BindView(R.id.user_profile_sign_out_btn) Button signOutButton;
+    @BindView(R.id.user_profile_events_btn) Button eventsButton;
     @BindView(R.id.user_profile_phone_no) TextView signedInPhoneNo;
     @BindView(R.id.user_profile_name) TextView signedInName;
 
@@ -84,6 +83,16 @@ public class UserProfileEditViewFragment extends Fragment {
         fragmentPlace.setPadding(0,0,0,0);
         //Make the bottom navigation invisible
         bottomNav.setVisibility(View.INVISIBLE);
+    }
+
+    @OnClick(R.id.user_profile_events_btn) void listMyEvents(View v){
+        UserEventListFragment userEventListFragment = new UserEventListFragment();
+        FragmentNavigationUtil.addFragmentToScreen(
+                getContext(),
+                userEventListFragment,
+                R.id.fragment_place,
+                FragmentNavigationUtil.ACCOUNT_SCREEN
+                );
     }
 
 }

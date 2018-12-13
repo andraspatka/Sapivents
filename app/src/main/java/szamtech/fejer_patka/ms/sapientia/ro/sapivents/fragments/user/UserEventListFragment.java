@@ -1,4 +1,4 @@
-package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event;
+package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -20,21 +20,20 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventDetailFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
-/**
- * Fragment for listing the Events
- */
-public class EventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface {
+public class UserEventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface {
     private List<Event> mEvents = new ArrayList<>();
     private EventsAdapter mEventsAdapter;
 
     private static final String TAG = "EventListFragment";
-    @BindView(R.id.event_list_recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.user_event_list_recycler_view) RecyclerView recyclerView;
 
-    public EventListFragment() {
+    public UserEventListFragment() {
         // Required empty public constructor
     }
 
@@ -48,7 +47,7 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                              ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_event_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_user_event_list, container, false);
 
         ButterKnife.bind(this, view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -90,13 +89,7 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      */
     @Override
     public void onClickEventItem(Event event) {
-        EventDetailFragment eventDetailFragment = EventDetailFragment.newInstance(event);
-        FragmentNavigationUtil.addFragmentToScreen(
-                getContext(),
-                eventDetailFragment,
-                R.id.fragment_place,
-                FragmentNavigationUtil.HOME_SCREEN
-        );
+
     }
 
     /**
@@ -110,7 +103,35 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      */
     @Override
     public void onLongClickEventItem(final Event event) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //builder.setTitle(R.string.pick_color)
+        String options[] ={"Edit", "Delete"};
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // The 'which' argument contains the index position
+                // of the selected item
+                switch(which){
+                    case 0:
+                        EventAddEditFragment eventAddEditFragment = EventAddEditFragment.newInstanceForEditing(event);
+                        FragmentNavigationUtil.addFragmentToScreen(
+                                getContext(),
+                                eventAddEditFragment,
+                                R.id.fragment_place,
+                                FragmentNavigationUtil.ACCOUNT_SCREEN);
+                        break;
+                    case 1:
+                        EventPrefUtil.removeEvent(getActivity(), event.getId() + "");
+                        updateData();
+                        Toast deletedToast = Toast.makeText(
+                                UserEventListFragment.super.getContext(),
+                                "Deleted " + event.getTitle(),
+                                Toast.LENGTH_SHORT);
+                        deletedToast.show();
+                        break;
+                }
+            }
+        });
+        builder.show();
     }
 
 }

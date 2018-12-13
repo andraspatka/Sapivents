@@ -25,4 +25,5 @@
     <string name="lastName_editText">Last name</string>
     <string name="phoneNumber_editText">Phone number</string>
     <string name="register_button">Sign Up</string>
+    <string name="my_events_button_text">My events</string>
 </resources>
