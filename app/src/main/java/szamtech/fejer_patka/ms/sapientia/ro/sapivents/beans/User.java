@@ -5,26 +5,28 @@ import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class User implements Serializable, Comparable<User> {
     //Temporary. only while using shared preferences
     private static int sId;
 
     private int id;
-    private String phone;
     private String firstName;
     private String lastName;
-    private String profileImage;
-    private ArrayList<String> eventIds;
+    private String profilePicture;
+    private List<String> eventAthored;
+    private List<String> eventAttendance;
 
     //For Shared Preferences
-    public User(String phone, String firstName, String lastName, String profileImage) {
+    public User(String firstName, String lastName) {
         this.id = id;
         ++sId;
-        this.phone = phone;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.profileImage = profileImage;
+        this.profilePicture = "";
+        eventAthored = new ArrayList<>();
+        eventAttendance = new ArrayList<>();
     }
 
     public int getId() {
@@ -33,14 +35,6 @@ public class User implements Serializable, Comparable<User> {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getFirstName() {
@@ -60,20 +54,19 @@ public class User implements Serializable, Comparable<User> {
     }
 
     public String getProfileImage() {
-        return profileImage;
+        return profilePicture;
     }
 
     public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+        this.profilePicture = profileImage;
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", phone='" + phone + '\'' +
                 ", firstName='" + firstName + '\'' +
-                ", profileImage='" + profileImage + '\'' +
+                ", profileImage='" + profilePicture + '\'' +
                 '}';
     }
 

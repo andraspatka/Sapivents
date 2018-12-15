@@ -16,11 +16,20 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +37,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FirebaseAuthUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
@@ -52,6 +62,7 @@ public class UserRegistrationFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuthUtil firebaseAuthUtil;
     private Activity mActivity;
+    private DatabaseReference mDatabase;
 
     public UserRegistrationFragment() {
         // Required empty public constructor
@@ -75,11 +86,11 @@ public class UserRegistrationFragment extends Fragment {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(mSignUpButtonPushed){
-                    Log.v(TAG, "onAuthStateChanged in reg");
+                    Log.v(TAG, "onAuthStateChanged and btnPressed in registration");
                     FirebaseAuth auth = firebaseAuthUtil.getFirebaseAuth();
                     FirebaseUser user = auth.getCurrentUser();
                     if (user != null) {
-                        setUserProfile();
+                        setUserProfile(user.getPhoneNumber());
                     }
                     mSignUpButtonPushed = false;
                 }
@@ -128,52 +139,51 @@ public class UserRegistrationFragment extends Fragment {
         firebaseAuthUtil.startPhoneNumberVerification(phoneNumber);
     }
 
-    private void setUserProfile(){
-        String displayName = mFirstName.getText().toString() + " " + mLastName.getText().toString();
-        FirebaseUser user = firebaseAuthUtil.getFirebaseAuth().getCurrentUser();
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .build();
-        user.updateProfile(profileUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "New user profile set up");
-                            Toast.makeText(mActivity,"You have successfully registered and logged in!",Toast.LENGTH_SHORT).show();
+    private void setUserProfile(final String phoneNumber){
 
-                            //The user registered successfully, so redirect him to the EventListFragment
-                            //Set the bottom and top padding
-                            int bottomPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.bottom_nav_height);
-                            int topPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.logo_height);
-                            //Get the fragment_place FrameLayout
-                            FrameLayout fragmentPlace = (FrameLayout) mActivity.findViewById(R.id.fragment_place);
-                            //Get the bottom nav
-                            BottomNavigationView bottomNav = (BottomNavigationView) mActivity.findViewById(R.id.bottom_nav);
-                            //Set home as the selected bottom navigation item
-                            bottomNav.setSelectedItemId(R.id.menu_home);
-                            //Set the padding to the R.id.fragment_place FrameLayout
-                            fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
-                            //Make the bottom navigation visible
-                            bottomNav.setVisibility(View.VISIBLE);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.hasChild("users/" + phoneNumber)) {
 
-                            //Add the fragment
-                            EventListFragment listFragment = new EventListFragment();
-                            FragmentNavigationUtil.addAsSingleFragment(
-                                    mActivity,
-                                    listFragment,
-                                    R.id.fragment_place,
-                                    FragmentNavigationUtil.HOME_SCREEN
-                            );
-                        }
-                        else{
-                            Toast.makeText(mActivity,"Something went wrong during registration!",Toast.LENGTH_SHORT).show();
-                            mFirstName.setText("");
-                            mLastName.setText("");
-                            mPhoneNumber.setText("");
-                        }
-                    }
-                });
+                    Toast.makeText(getActivity(), "Phone number already exists!", Toast.LENGTH_SHORT).show();
+
+                }
+                else{
+
+                    String firstName = mFirstName.getText().toString();
+                    String lastName = mLastName.getText().toString();
+                    User user = new User(firstName, lastName);
+
+                    mDatabase = FirebaseDatabase.getInstance().getReference("users");
+                    String id = mDatabase.push().getKey();
+                    Map<String, Object> newUser = new HashMap<>();
+                    newUser.put(phoneNumber,  user);
+                    mDatabase.updateChildren(newUser)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    successfullyRegistered();
+                                    Toast.makeText(getActivity(), "You have successfully registered and logged in!", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getActivity(), "Something went wrong during registration!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.v(TAG, databaseError.getMessage());
+            }
+        });
+
     }
 
     private boolean isValidEditTextDatas(){
@@ -202,5 +212,31 @@ public class UserRegistrationFragment extends Fragment {
         }
 
         return true;
+    }
+
+    void successfullyRegistered(){
+        //The user registered successfully, so redirect him to the EventListFragment
+        //Set the bottom and top padding
+        int bottomPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.bottom_nav_height);
+        int topPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.logo_height);
+        //Get the fragment_place FrameLayout
+        FrameLayout fragmentPlace = (FrameLayout) mActivity.findViewById(R.id.fragment_place);
+        //Get the bottom nav
+        BottomNavigationView bottomNav = (BottomNavigationView) mActivity.findViewById(R.id.bottom_nav);
+        //Set home as the selected bottom navigation item
+        bottomNav.setSelectedItemId(R.id.menu_home);
+        //Set the padding to the R.id.fragment_place FrameLayout
+        fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+        //Make the bottom navigation visible
+        bottomNav.setVisibility(View.VISIBLE);
+
+        //Add the fragment
+        EventListFragment listFragment = new EventListFragment();
+        FragmentNavigationUtil.addAsSingleFragment(
+                mActivity,
+                listFragment,
+                R.id.fragment_place,
+                FragmentNavigationUtil.HOME_SCREEN
+        );
     }
 }

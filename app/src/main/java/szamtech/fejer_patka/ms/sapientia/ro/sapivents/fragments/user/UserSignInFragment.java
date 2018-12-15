@@ -17,6 +17,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +51,7 @@ public class UserSignInFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuthUtil firebaseAuthUtil;
     private Activity mActivity;
+    private DatabaseReference mDatabase;
 
     public UserSignInFragment() {
         // Required empty public constructor
@@ -66,6 +72,8 @@ public class UserSignInFragment extends Fragment {
         firebaseAuthUtil.initializeFirebaseAuth();
         mActivity = getActivity();
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -74,31 +82,54 @@ public class UserSignInFragment extends Fragment {
                     Log.v(TAG, "onAuthStateChanged in sign");
                     FirebaseAuth auth = firebaseAuthUtil.getFirebaseAuth();
                     FirebaseUser user = auth.getCurrentUser();
-                    if (user != null && user.getDisplayName() != null) {
-                        //The user registered successfully, so redirect him to the EventListFragment
-                        //Set the bottom and top padding
-                        int bottomPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.bottom_nav_height);
-                        int topPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.logo_height);
-                        //Get the fragment_place FrameLayout
-                        FrameLayout fragmentPlace = (FrameLayout) mActivity.findViewById(R.id.fragment_place);
-                        //Get the bottom nav
-                        BottomNavigationView bottomNav = (BottomNavigationView) mActivity.findViewById(R.id.bottom_nav);
-                        //Set home as the selected bottom navigation item
-                        bottomNav.setSelectedItemId(R.id.menu_home);
-                        //Set the padding to the R.id.fragment_place FrameLayout
-                        fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
-                        //Make the bottom navigation visible
-                        bottomNav.setVisibility(View.VISIBLE);
+                    if (user != null) {
 
-                        //Add the fragment
-                        EventListFragment listFragment = new EventListFragment();
-                        FragmentNavigationUtil.addAsSingleFragment(
-                                mActivity,
-                                listFragment,
-                                R.id.fragment_place,
-                                FragmentNavigationUtil.HOME_SCREEN
-                        );
+                        final String phoneNumber = user.getPhoneNumber();
+
+                        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                if (snapshot.hasChild("users/" + phoneNumber)) {
+
+                                    //The user registered successfully, so redirect him to the EventListFragment
+                                    //Set the bottom and top padding
+                                    int bottomPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.bottom_nav_height);
+                                    int topPaddingInPixels = (int) mActivity.getResources().getDimension(R.dimen.logo_height);
+                                    //Get the fragment_place FrameLayout
+                                    FrameLayout fragmentPlace = (FrameLayout) mActivity.findViewById(R.id.fragment_place);
+                                    //Get the bottom nav
+                                    BottomNavigationView bottomNav = (BottomNavigationView) mActivity.findViewById(R.id.bottom_nav);
+                                    //Set home as the selected bottom navigation item
+                                    bottomNav.setSelectedItemId(R.id.menu_home);
+                                    //Set the padding to the R.id.fragment_place FrameLayout
+                                    fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+                                    //Make the bottom navigation visible
+                                    bottomNav.setVisibility(View.VISIBLE);
+
+                                    //Add the fragment
+                                    EventListFragment listFragment = new EventListFragment();
+                                    FragmentNavigationUtil.addAsSingleFragment(
+                                            mActivity,
+                                            listFragment,
+                                            R.id.fragment_place,
+                                            FragmentNavigationUtil.HOME_SCREEN
+                                    );
+
+                                }
+                                else{
+                                    firebaseAuthUtil.signOut();
+                                    Toast.makeText(getActivity(), "User not registered!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.v(TAG, databaseError.getMessage());
+                            }
+                        });
+
                     } else {
+                        firebaseAuthUtil.signOut();
                         Toast.makeText(getActivity(), "User not registered!", Toast.LENGTH_SHORT).show();
                     }
                 }
