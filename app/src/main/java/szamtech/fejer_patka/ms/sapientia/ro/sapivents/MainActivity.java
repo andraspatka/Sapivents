@@ -7,23 +7,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.DateTime;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileEditViewFragment;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserProfileViewFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user.UserSignInFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
@@ -110,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         if(selectedId != item.getItemId()){
             switch(item.getItemId()){
                 case R.id.menu_account:
-                    UserProfileEditViewFragment accountFragment = new UserProfileEditViewFragment();
+                    UserProfileViewFragment accountFragment = new UserProfileViewFragment();
                     FragmentNavigationUtil.screenSelected(
                             MainActivity.this,
                             accountFragment,

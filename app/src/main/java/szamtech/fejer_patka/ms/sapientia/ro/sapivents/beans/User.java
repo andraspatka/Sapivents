@@ -15,8 +15,8 @@ public class User implements Serializable, Comparable<User> {
     private String firstName;
     private String lastName;
     private String profilePicture;
-    private List<String> eventAthored;
-    private List<String> eventAttendance;
+    private List<String> eventAthored = new ArrayList<>();
+    private List<String> eventAttendance = new ArrayList<>();
 
     //For Shared Preferences
     public User(String firstName, String lastName) {
@@ -25,8 +25,17 @@ public class User implements Serializable, Comparable<User> {
         this.firstName = firstName;
         this.lastName = lastName;
         this.profilePicture = "";
-        eventAthored = new ArrayList<>();
-        eventAttendance = new ArrayList<>();
+        eventAthored.add("");
+        eventAttendance.add("");
+    }
+
+    public User(){
+        this.id = 0;
+        this.firstName = "";
+        this.lastName = "";
+        this.profilePicture = "";
+        eventAthored.add("");
+        eventAttendance.add("");
     }
 
     public int getId() {
@@ -59,6 +68,14 @@ public class User implements Serializable, Comparable<User> {
 
     public void setProfileImage(String profileImage) {
         this.profilePicture = profileImage;
+    }
+
+    public List<String> getEventAthored() {
+        return eventAthored;
+    }
+
+    public List<String> getEventAttendance() {
+        return eventAttendance;
     }
 
     @Override

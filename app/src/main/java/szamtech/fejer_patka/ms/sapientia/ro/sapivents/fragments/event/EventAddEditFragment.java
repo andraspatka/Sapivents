@@ -105,7 +105,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             if(!sEvent.getImages().isEmpty()){
                 Glide.with(getActivity())
                         .load(sEvent.getImages().get(0))
-                        .apply(new RequestOptions().centerCrop())
+                        .apply(new RequestOptions().centerCrop().override(132,132))
                         .into(eventImageView);
                 eventPublishedButton.setVisibility(View.VISIBLE);
             }
