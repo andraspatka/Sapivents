@@ -63,7 +63,7 @@ public class EventDetailFragment extends Fragment {
         if(sEvent != null){
             eventName.setText(sEvent.getTitle());
             eventDescription.setText(sEvent.getDescription());
-            eventDate.setText(sEvent.getDate().toString());
+            eventDate.setText(sEvent.getEventDate().toString());
             eventLocation.setText(sEvent.getLocation());
             if(sEvent.getAttendants() != null){
                 eventAttendantsNumber.setText(0 + "");

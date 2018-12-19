@@ -22,10 +22,10 @@ public class Event implements Comparable<Event>, Serializable {
     private int id;
     private String title;
     private String description;
-    private DateTime date;
+    private DateTime eventDate;
     private String location;
     private ArrayList<String> images = new ArrayList<>();
-    private String authorId;
+    private String author;
     private ArrayList<String> attendants;
     private boolean published;
 
@@ -40,12 +40,13 @@ public class Event implements Comparable<Event>, Serializable {
         ++sId;
         this.title = title;
         this.description = description;
-        this.date = date;
+        this.eventDate = date;
         this.location = location;
         this.images = images;
-        this.authorId = authorId;
+        this.author = authorId;
         this.attendants = attendants;
         this.published = published;
+        this.attendants.add("");
     }
 
     public int getId() {
@@ -72,12 +73,12 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    public DateTime getDate() {
-        return date;
+    public DateTime getEventDate() {
+        return eventDate;
     }
 
-    public void setDate(DateTime date) {
-        this.date = date;
+    public void setEventDate(DateTime date) {
+        this.eventDate = date;
     }
 
     public String getLocation() {
@@ -100,12 +101,12 @@ public class Event implements Comparable<Event>, Serializable {
         this.images = new ArrayList<>();
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
+    public void setAuthor(String authorId) {
+        this.author = authorId;
     }
 
     public ArrayList<String> getAttendants() {

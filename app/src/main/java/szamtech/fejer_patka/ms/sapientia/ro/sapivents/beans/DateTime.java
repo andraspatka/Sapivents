@@ -166,7 +166,11 @@ public class DateTime implements Serializable{
     }
 
     public String getDate(){
-        return date;
+        return this.year + "." + this.month + "." + this.day;
+    }
+
+    public String getTime(){
+        return this.hour + ":" + this.minutes;
     }
 
     /**

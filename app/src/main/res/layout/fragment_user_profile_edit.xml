@@ -9,6 +9,22 @@
     android:background="@color/colorBlueishGray"
     tools:context=".fragments.user.UserProfileEditViewFragment">
 
+    <ProgressBar
+        android:id="@+id/user_edit_img_progress"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.179" />
+
     <EditText
         android:id="@+id/usr_profile_lname_editText"
         android:layout_width="wrap_content"
@@ -26,7 +42,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/usr_profile_fname_editText"
         app:layout_constraintVertical_bias="0.089" />
-
 
 
     <Button
@@ -69,6 +84,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.098"
-        tools:src="@tools:sample/avatars[3]" />
+        tools:src="@mipmap/ic_launcher" />
 
 </android.support.constraint.ConstraintLayout>

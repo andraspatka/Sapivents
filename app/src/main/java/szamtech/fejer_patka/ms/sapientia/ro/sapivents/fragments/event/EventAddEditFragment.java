@@ -4,7 +4,9 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
@@ -22,6 +24,15 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.Calendar;
 
@@ -46,6 +57,9 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     //and false otherwise
     private static boolean sIsOpenForEditing;
     private static Event sEvent;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mDatabase;
+    private FirebaseStorage mStorage;
 
     @BindView(R.id.event_edit_add_save_button) Button eventSaveButton;
     @BindView(R.id.event_edit_add_change_image_button) Button eventChangeImage;
@@ -88,6 +102,9 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance().getReference("events");
+        mStorage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -100,7 +117,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         if(sIsOpenForEditing){
             eventNameEditText.setText(sEvent.getTitle());
             eventDescEditText.setText(sEvent.getDescription());
-            eventDateEditText.setText(sEvent.getDate().toString());
+            eventDateEditText.setText(sEvent.getEventDate().toString());
             eventLocationEditText.setText(sEvent.getLocation());
             if(!sEvent.getImages().isEmpty()){
                 Glide.with(getActivity())
@@ -119,7 +136,6 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      * @param v button's view
      */
     @OnClick(R.id.event_edit_add_save_button) void saveEvent(View v){
-
         Toast toast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
         if(eventNameEditText.getText().toString().equals("")){
             toast.setText("Please add a title to the event");
@@ -135,26 +151,19 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             toast.show();
         }else{
             //Set the name, description, location and date fields from the EditTexts
+            sEvent.setAuthor(mFirebaseUser.getPhoneNumber());
             sEvent.setTitle(eventNameEditText.getText().toString());
             sEvent.setDescription(eventDescEditText.getText().toString());
             sEvent.setLocation(eventLocationEditText.getText().toString());
             Log.v(TAG, eventDateEditText.getText().toString());
-            sEvent.setDate(new DateTime(eventDateEditText.getText().toString()));
+            sEvent.setEventDate(new DateTime(eventDateEditText.getText().toString()));
             //The published state is true by default for new Events
+
             if(!sIsOpenForEditing){
                 sEvent.setPublished(true);
             }
-            Log.v(TAG, sEvent.toString());
-            //Save the event
-            EventPrefUtil.saveEvent(getActivity(),sEvent.getId()+"",sEvent);
-            //If it's open for editing, then we are in the same navigation tab,
-            //so FragmentNavigationUtil.popFragment method is appropriate
-            if(sIsOpenForEditing){
-                FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
-            }
-            //Get the BottomNavigationView and set the appropriate icon as selected
-            BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
-            bottomNavigationView.setSelectedItemId(R.id.menu_home);
+
+            uploadEventData();
 
             //Clear input fields
             eventNameEditText.setText("");
@@ -224,7 +233,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        sEvent.setDate(new DateTime(year,month,dayOfMonth,0,0));
+        sEvent.setEventDate(new DateTime(year,month,dayOfMonth,0,0));
 
         // Create a new instance of TimePickerDialog and return it
         TimePickerDialog timePickerDialog =  new TimePickerDialog(getActivity(), this, hour, minute,
@@ -238,9 +247,9 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      */
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        sEvent.getDate().setHour(hourOfDay);
-        sEvent.getDate().setMinutes(minute);
-        eventDateEditText.setText(sEvent.getDate().toString());
+        sEvent.getEventDate().setHour(hourOfDay);
+        sEvent.getEventDate().setMinutes(minute);
+        eventDateEditText.setText(sEvent.getEventDate().toString());
     }
 
     /**
@@ -303,5 +312,58 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                 }
                 break;
         }
+    }
+
+    void uploadEventData(){
+
+        String postId = mDatabase.push().getKey();
+        mDatabase.child(postId).setValue(sEvent)
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.v(TAG, "Data uploaded");
+                    Toast.makeText(getActivity(), "Uploading data completed", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.v(TAG, "Data uploading failed");
+                }
+            });
+
+        StorageReference storageRef = mStorage.getReference();
+
+        for(int i = 0; i<sEvent.getImages().size(); ++i){
+
+            final int pos = i;
+
+            StorageReference imageRef = storageRef.child("images/eventImages/" + postId + "/img" + pos);
+
+            UploadTask uploadTask = imageRef.putFile(Uri.parse(sEvent.getImages().get(i)));
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Log.v(TAG, "image upload failed " + exception.getMessage());
+                    Toast.makeText(getActivity(), "Error uploading " + pos + ". image!", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Log.v(TAG, "image uploaded");
+                }
+            });
+
+        }
+        /*
+        //If it's open for editing, then we are in the same navigation tab,
+        //so FragmentNavigationUtil.popFragment method is appropriate
+        if(sIsOpenForEditing){
+            FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
+        }
+        //Get the BottomNavigationView and set the appropriate icon as selected
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
+        bottomNavigationView.setSelectedItemId(R.id.menu_home);
+        */
     }
 }

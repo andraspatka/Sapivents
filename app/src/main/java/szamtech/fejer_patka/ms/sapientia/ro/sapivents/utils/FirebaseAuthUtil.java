@@ -13,15 +13,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.storage.StorageException;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +34,7 @@ public class FirebaseAuthUtil {
 
     private static final String TAG = "FIREBASE_AUTH_UTILS";
     private final Context mContext;
-    private Dialog loadingDialog = null;
+    private LoadingDialogUtil mLoadingDialog = null;
 
     private boolean isCodeSent = false;
 
@@ -61,11 +64,8 @@ public class FirebaseAuthUtil {
 
                 mVerificationInProgress = false;
 
-                if(loadingDialog != null){
-                    if(loadingDialog.isShowing()){
-                        loadingDialog.dismiss();
-                        loadingDialog = null;
-                    }
+                if(mLoadingDialog != null){
+                    mLoadingDialog.endDialog();
                 }
 
                 signInWithPhoneAuthCredential(credential);
@@ -81,11 +81,8 @@ public class FirebaseAuthUtil {
             public void onVerificationFailed(FirebaseException e) {
                 Log.v(TAG, "onVerificationFailed", e);
 
-                if(loadingDialog != null){
-                    if(loadingDialog.isShowing()){
-                        loadingDialog.dismiss();
-                        loadingDialog = null;
-                    }
+                if(mLoadingDialog != null){
+                    mLoadingDialog.endDialog();
                 }
 
                 mVerificationInProgress = false;
@@ -114,11 +111,8 @@ public class FirebaseAuthUtil {
                 mResendToken = token;
                 isCodeSent = true;
 
-                if(loadingDialog != null){
-                    if(loadingDialog.isShowing()){
-                        loadingDialog.dismiss();
-                        loadingDialog = null;
-                    }
+                if(mLoadingDialog != null){
+                    mLoadingDialog.endDialog();
                 }
 
                 verificationDialog().show();
@@ -128,10 +122,9 @@ public class FirebaseAuthUtil {
 
     public void startPhoneNumberVerification(String phoneNumber) {
 
-        loadingDialog = loadingDialog();
-        loadingDialog.setCanceledOnTouchOutside(false);
-        loadingDialog.setCancelable(false);
-        loadingDialog.show();
+        mLoadingDialog = new LoadingDialogUtil(mContext);
+        mLoadingDialog.setDialogText("Connecting to database...");
+        mLoadingDialog.showDialog();
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
@@ -162,10 +155,16 @@ public class FirebaseAuthUtil {
 
                         } else {
                             // Sign in failed, display a message and update the UI
-                            Log.v(TAG, "signInWithCredential: failure");
+                            Log.v(TAG, "signInWithCredential: failure" + task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
                                 Toast.makeText(mContext,"The verification code entered was invalid!",Toast.LENGTH_SHORT).show();
+                            }
+                            else if(task.getException() instanceof FirebaseNetworkException){
+                                Toast.makeText(mContext, "Network error!", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                Toast.makeText(mContext, "Something went wrong during authentication!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -228,7 +227,7 @@ public class FirebaseAuthUtil {
         mAuth.addAuthStateListener(authStateListener);
     }
 
-    private Dialog loadingDialog() {
+    /*private Dialog loadingDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         // Get the layout inflater
         LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
@@ -238,5 +237,5 @@ public class FirebaseAuthUtil {
         final View view = inflater.inflate(szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.layout.loading_dialog, null);
         builder.setView(view);
         return builder.create();
-    }
+    }*/
 }

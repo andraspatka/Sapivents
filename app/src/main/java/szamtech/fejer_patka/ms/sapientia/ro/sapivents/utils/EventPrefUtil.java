@@ -5,8 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -23,9 +29,10 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
  */
 public class EventPrefUtil {
 
-    private EventPrefUtil(){}
+    private static final String TAG = "event_pref_util";
 
-    private static final String TAG = "EventPrefUtil";
+    private EventPrefUtil(){
+    }
 
     //Global access point
     public static SharedPreferences getPreferences(Context context){
@@ -46,6 +53,7 @@ public class EventPrefUtil {
         String json = gson.toJson(event);
         editor.putString(key, json);
         editor.apply();
+
     }
 
     /**
