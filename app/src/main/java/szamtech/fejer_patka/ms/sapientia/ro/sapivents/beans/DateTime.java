@@ -12,7 +12,6 @@ import java.util.Calendar;
  * Written on 2018-11-24
  * Uses Hungarian date format YYYY-MM-DDThh:mm
  * Implements Serializable interface to tell the JVM that this class can be serialized
- * The DateTime object is immutable it is set in the constructor and can not be changed (no setters)
  */
 public class DateTime implements Serializable{
     transient private int year;
@@ -20,6 +19,8 @@ public class DateTime implements Serializable{
     transient private int day;
     transient private int hour;
     transient private int minutes;
+
+    private static final long serialVersionUID = 1738653275L;
 
     /**
      * The whole date is stored in a string
@@ -148,10 +149,6 @@ public class DateTime implements Serializable{
         }
         this.minutes = minutes;
     }
-
-    /**
-
-     */
     /**
      * Adds a 0 as left padding to the number if it's less than 10
      * @param stringBuilder StringBuilder instance, temporarily holds the date string
