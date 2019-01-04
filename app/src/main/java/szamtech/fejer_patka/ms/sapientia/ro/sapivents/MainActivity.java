@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         mBottomNavigationView.setSelectedItemId(R.id.menu_home);
 
         //If the user is not authenticated, call this sign in fragment
-        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+        /*if(FirebaseAuth.getInstance().getCurrentUser() == null){
             //Create the UserSignInFragment
             UserSignInFragment userSignInFragment = new UserSignInFragment();
             FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
@@ -65,7 +65,22 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                     R.id.fragment_place,
                     FragmentNavigationUtil.HOME_SCREEN
             );
-        }
+        }*/
+
+        int bottomPaddingInPixels = (int) getResources().getDimension(R.dimen.bottom_nav_height);
+        int topPaddingInPixels = (int) getResources().getDimension(R.dimen.logo_height);
+        //Set the padding to the R.id.fragment_place FrameLayout
+        mFragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+        //Make the bottom navigation visible, and the userSignInButton invisible
+        mBottomNavigationView.setVisibility(View.VISIBLE);
+
+        EventListFragment listFragment = new EventListFragment();
+        FragmentNavigationUtil.screenSelected(
+                MainActivity.this,
+                listFragment,
+                R.id.fragment_place,
+                FragmentNavigationUtil.HOME_SCREEN
+        );
 
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
     }

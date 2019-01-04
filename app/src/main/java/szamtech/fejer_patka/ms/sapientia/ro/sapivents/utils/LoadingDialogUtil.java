@@ -45,9 +45,15 @@ public class LoadingDialogUtil extends Activity {
     }
 
     public void endDialog(){
-        if(mLoadingDialog.isShowing()){
-            mLoadingDialog.dismiss();
-            mLoadingDialog = null;
+        if(mLoadingDialog != null) {
+
+            if (mLoadingDialog.isShowing()) {
+
+                mLoadingDialog.dismiss();
+                mLoadingDialog = null;
+
+            }
+
         }
     }
 

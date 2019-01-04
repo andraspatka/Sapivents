@@ -31,9 +31,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -44,6 +47,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.DateTime;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
+import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.LoadingDialogUtil;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -60,6 +64,13 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mDatabase;
     private FirebaseStorage mStorage;
+    private int mTotalImageNum;
+    private int mImageCount;
+    private LoadingDialogUtil mLoadingDialog;
+
+    private int imageIndex = 0;
+    //need to be declared final, because it is used in inner class OnProgressListener
+    final int[] progressResult = new int[1];
 
     @BindView(R.id.event_edit_add_save_button) Button eventSaveButton;
     @BindView(R.id.event_edit_add_change_image_button) Button eventChangeImage;
@@ -71,8 +82,6 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     @BindView(R.id.event_edit_add_date_edit_text) EditText eventDateEditText;
     @BindView(R.id.event_edit_add_location_edit_text) EditText eventLocationEditText;
     @BindView(R.id.event_edit_add_published) ImageButton eventPublishedButton;
-
-    private int imageIndex = 0;
 
     public EventAddEditFragment() {
         // Required empty public constructor
@@ -151,7 +160,8 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             toast.show();
         }else{
             //Set the name, description, location and date fields from the EditTexts
-            sEvent.setAuthor(mFirebaseUser.getPhoneNumber());
+            //sEvent.setAuthor(mFirebaseUser.getPhoneNumber());
+            sEvent.setAuthor("+40755507399"); //for testring only
             sEvent.setTitle(eventNameEditText.getText().toString());
             sEvent.setDescription(eventDescEditText.getText().toString());
             sEvent.setLocation(eventLocationEditText.getText().toString());
@@ -316,24 +326,19 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
 
     void uploadEventData(){
 
-        String postId = mDatabase.push().getKey();
-        mDatabase.child(postId).setValue(sEvent)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.v(TAG, "Data uploaded");
-                    Toast.makeText(getActivity(), "Uploading data completed", Toast.LENGTH_SHORT).show();
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.v(TAG, "Data uploading failed");
-                }
-            });
+        mImageCount = 0;
 
-        StorageReference storageRef = mStorage.getReference();
+        mLoadingDialog = new LoadingDialogUtil(getContext());
+        mLoadingDialog.showDialog();
 
+        final String postId = mDatabase.push().getKey();
+
+        final StorageReference storageRef = mStorage.getReference();
+
+        mTotalImageNum = sEvent.getImages().size();
+        //aux variable for storing actual progress value
+        final int s_progress = 0;
+        final ArrayList<String> s_eventImages = new ArrayList<>();
         for(int i = 0; i<sEvent.getImages().size(); ++i){
 
             final int pos = i;
@@ -344,26 +349,102 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             uploadTask.addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
+
                     Log.v(TAG, "image upload failed " + exception.getMessage());
-                    Toast.makeText(getActivity(), "Error uploading " + pos + ". image!", Toast.LENGTH_SHORT).show();
+                    checkUploadState();
+
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
                     Log.v(TAG, "image uploaded");
+
+                    storageRef.child("images/eventImages/" + postId + "/img" + pos).getDownloadUrl()
+                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Log.v(TAG, "image url onSuccess");
+                                    s_eventImages.add(uri.toString());
+                                }
+
+                            }).addOnFailureListener(new OnFailureListener() {
+
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Log.v(TAG, "image url onFailure");
+                                }
+
+                            });
+
+                    checkUploadState();
+
+                    //if every image is uploaded to storage
+                    if(mImageCount == mTotalImageNum){
+                        //setting up uploaded image url's to event
+                        sEvent.setImages(s_eventImages);
+
+                        //uploading new event to database
+                        mDatabase.child(postId).setValue(sEvent)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.v(TAG, "Data uploaded");
+                                    }
+
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.v(TAG, "Data uploading failed");
+                                    }
+
+                                });
+
+                    }
                 }
+
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount()) * mImageCount / mTotalImageNum;
+
+                    if(progress > progressResult[0]){
+
+                        progressResult[0] = progress;
+                        mLoadingDialog.setDialogText("Upload is " + progress + "% done");
+
+                    }
+
+                }
+
             });
 
         }
-        /*
-        //If it's open for editing, then we are in the same navigation tab,
-        //so FragmentNavigationUtil.popFragment method is appropriate
-        if(sIsOpenForEditing){
-            FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
+
+    }
+
+    void checkUploadState(){
+        ++mImageCount;
+        if(mImageCount == mTotalImageNum){
+
+            mLoadingDialog.endDialog();
+
+            //If it's open for editing, then we are in the same navigation tab,
+            //so FragmentNavigationUtil.popFragment method is appropriate
+            if(sIsOpenForEditing){
+                FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
+            }
+            //Get the BottomNavigationView and set the appropriate icon as selected
+            BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
+            bottomNavigationView.setSelectedItemId(R.id.menu_home);
+
         }
-        //Get the BottomNavigationView and set the appropriate icon as selected
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
-        bottomNavigationView.setSelectedItemId(R.id.menu_home);
-        */
     }
 }

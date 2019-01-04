@@ -28,4 +28,7 @@
     <string name="my_events_button_text">My events</string>
     <string name="save_btn">Save</string>
     <string name="user_profile_edit_btn">Edit</string>
+    <string name="user_fname_textView">First Name</string>
+    <string name="user_lname_textView">Last Name</string>
+    <string name="user_phone_number_textView">Phone Number</string>
 </resources>

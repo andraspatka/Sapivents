@@ -68,7 +68,7 @@ public class FirebaseAuthUtil {
                     mLoadingDialog.endDialog();
                 }
 
-                signInWithPhoneAuthCredential(credential);
+                //signInWithPhoneAuthCredential(credential);
             }
             //Called when the timeout duration for auto-retrieval ended
             @Override
@@ -116,6 +116,7 @@ public class FirebaseAuthUtil {
                 }
 
                 verificationDialog().show();
+
             }
         };
     }
@@ -197,6 +198,7 @@ public class FirebaseAuthUtil {
                         Log.w(TAG, "Cancel btn pressed in sign in dialog");
                     }
                 });
+        builder.setCancelable(false);
         return builder.create();
     }
 
@@ -227,15 +229,4 @@ public class FirebaseAuthUtil {
         mAuth.addAuthStateListener(authStateListener);
     }
 
-    /*private Dialog loadingDialog() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        // Get the layout inflater
-        LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        final View view = inflater.inflate(szamtech.fejer_patka.ms.sapientia.ro.sapivents.R.layout.loading_dialog, null);
-        builder.setView(view);
-        return builder.create();
-    }*/
 }

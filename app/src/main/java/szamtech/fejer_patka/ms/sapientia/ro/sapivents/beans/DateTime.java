@@ -106,6 +106,10 @@ public class DateTime implements Serializable{
         validateDate(year,month,day,hour,minutes);
     }
 
+    public DateTime(){
+
+    }
+
     /**
      * Extracts year, month, day, hour and minutes from a DateTime String
      * In the given format the indexes are, as follows:

@@ -49,6 +49,10 @@ public class Event implements Comparable<Event>, Serializable {
         this.attendants.add("");
     }
 
+    public Event(){
+
+    }
+
     public int getId() {
         return id;
     }
@@ -123,6 +127,10 @@ public class Event implements Comparable<Event>, Serializable {
 
     public void setPublished(boolean published) {
         this.published = published;
+    }
+
+    public void addNewImageURL(String imageUrl){
+        images.add(imageUrl);
     }
 
     @Override

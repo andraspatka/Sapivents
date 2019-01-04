@@ -13,6 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +36,11 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUt
  * Fragment for listing the Events
  */
 public class EventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface {
+
     private List<Event> mEvents = new ArrayList<>();
     private EventsAdapter mEventsAdapter;
+
+    private DatabaseReference mDatabase;
 
     private static final String TAG = "EventListFragment";
     @BindView(R.id.event_list_recycler_view) RecyclerView recyclerView;
@@ -67,12 +78,38 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      */
     private void updateData(){
         //Get the data from SharedPreferences
-        mEvents = EventPrefUtil.getAllValues(getActivity());
+        /*mEvents = EventPrefUtil.getAllValues(getActivity());
         for(int i=0; i<mEvents.size(); ++i){
             if(!mEvents.get(i).isPublished()){
                 mEvents.remove(i);
             }
-        }
+        }*/
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        Query listEventQuery = mDatabase.child("events").orderByChild("eventDate/date");
+        listEventQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.v(TAG, "onDataChange()");
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+
+                    Event actualEvent = postSnapshot.getValue(Event.class);
+                    mEvents.add(actualEvent);
+                    Log.v(TAG, "event - " + actualEvent.getImages().get(0));
+                    Log.v(TAG, "event - " + actualEvent.getEventDate());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+
+            }
+        });
+
         //Create the adapter
         mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
         //Set the adapter to the recyclerview
