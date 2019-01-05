@@ -28,6 +28,7 @@ public class Event implements Comparable<Event>, Serializable {
     private String author;
     private ArrayList<String> attendants;
     private boolean published;
+    private String key; //this is for identifying in database
 
 
     public Event(String title, String description) {
@@ -132,6 +133,10 @@ public class Event implements Comparable<Event>, Serializable {
     public void addNewImageURL(String imageUrl){
         images.add(imageUrl);
     }
+
+    public void setKey(String key){ this.key = key; }
+
+    public String getKey(){ return this.key; }
 
     @Override
     public int compareTo(@NonNull Event o) {

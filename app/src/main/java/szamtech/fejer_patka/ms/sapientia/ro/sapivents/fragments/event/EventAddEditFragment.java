@@ -36,7 +36,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 import butterknife.BindView;
@@ -45,7 +44,6 @@ import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.DateTime;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.LoadingDialogUtil;
 
@@ -160,8 +158,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             toast.show();
         }else{
             //Set the name, description, location and date fields from the EditTexts
-            //sEvent.setAuthor(mFirebaseUser.getPhoneNumber());
-            sEvent.setAuthor("+40755507399"); //for testring only
+            sEvent.setAuthor(mFirebaseUser.getPhoneNumber());
             sEvent.setTitle(eventNameEditText.getText().toString());
             sEvent.setDescription(eventDescEditText.getText().toString());
             sEvent.setLocation(eventLocationEditText.getText().toString());
@@ -332,6 +329,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         mLoadingDialog.showDialog();
 
         final String postId = mDatabase.push().getKey();
+        sEvent.setKey(postId);
 
         final StorageReference storageRef = mStorage.getReference();
 
@@ -393,6 +391,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.v(TAG, "Data uploaded");
+                                        Log.v(TAG, "Event successfully uploaded");
                                     }
 
                                 })
@@ -401,6 +400,8 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.v(TAG, "Data uploading failed");
+                                        Log.v(TAG, "Error uploading event, please try again!");
+
                                     }
 
                                 });
@@ -413,7 +414,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount()) * mImageCount / mTotalImageNum;
+                    int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount()) * (mImageCount + 1) / mTotalImageNum;
 
                     if(progress > progressResult[0]){
 

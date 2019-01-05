@@ -1,16 +1,22 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.user;
 
+import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.ClipData;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,9 +42,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,13 +57,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.User;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.LoadingDialogUtil;
 
 public class UserProfileEditFragment extends Fragment {
 
-    public static final int PICK_IMAGE = 1;
+    public static final int PICK_IMAGE = 0;
+    public static final int TAKE_IMAGE = 1;
+    public static final int WRITE_EXTERNAL_STORAGE_REQUEST = 1;
     private static final String TAG = "usr_edit_fragment";
 
     private DatabaseReference mDatabase;
@@ -82,9 +91,11 @@ public class UserProfileEditFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mStorage = FirebaseStorage.getInstance();
+
     }
 
     @Override
@@ -145,6 +156,16 @@ public class UserProfileEditFragment extends Fragment {
 
             mFirstName.setText(mActualUser.getFirstName());
             mLastName.setText(mActualUser.getLastName());
+
+            //asking for camera permission
+            if (ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions((Activity) getContext(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+
+
+            }
 
         }
 
@@ -223,16 +244,81 @@ public class UserProfileEditFragment extends Fragment {
                         });
 
                 }
-            });
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                    loadingDialog.setDialogText("Upload is " + progress + "% done");
+
+                }
+
+            });;
         }
     }
 
     @OnClick(R.id.user_profile_image) void changeImage(View v){
         Log.v(TAG, "changeImage");
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(photoPickerIntent, PICK_IMAGE);
+
+        //creating option for dialog
+        CharSequence colors[] = new CharSequence[] {"Take Photo", "Choose from Library"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Add Photo");
+        builder.setItems(colors, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                if(which == 0){
+
+                    if (ContextCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                        Toast.makeText(getActivity(), "You have no permission for using camera!", Toast.LENGTH_SHORT).show();
+
+                    }
+                    else{
+
+                        //taking photo with camera
+                        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(takePicture, TAKE_IMAGE);
+
+                    }
+
+
+                }
+                else{
+                    if(which == 1){
+                        //selecting a photo from gallery
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(pickPhoto , PICK_IMAGE);
+
+                    }
+                }
+
+            }
+
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int id) {
+                    Log.v(TAG, "Cancel btn pressed on choose photo dialog");
+                }
+
+            });
+        builder.show();
+    }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+
     }
 
     @Override
@@ -240,21 +326,44 @@ public class UserProfileEditFragment extends Fragment {
     {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE) {
+        if(resultCode == Activity.RESULT_OK && data != null) {
 
-            ClipData clipData = data.getClipData();
+            Uri selectedImage = null;
 
-            if(clipData != null){
+            switch (requestCode) {
 
-                ClipData.Item item = clipData.getItemAt(0);
-                mProfilePictureUri = item.getUri().toString();
-                Glide.with(getActivity())
-                        .load(item.getUri())
-                        .apply(new RequestOptions().circleCropTransform())
-                        .into(mProfilePicture);
+                case PICK_IMAGE:
+
+                    selectedImage = data.getData();
+                    mProfilePictureUri = selectedImage.toString();
+                    Glide.with(getActivity())
+                            .load(selectedImage)
+                            .apply(new RequestOptions().circleCropTransform())
+                            .into(mProfilePicture);
+
+                    break;
+
+                case TAKE_IMAGE:
+
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+                    // CALL THIS METHOD TO GET THE URI FROM THE BITMAP
+                    selectedImage = getImageUri(getContext(), imageBitmap);
+
+                    mProfilePictureUri = selectedImage.toString();
+                    Glide.with(getActivity())
+                            .load(selectedImage)
+                            .apply(new RequestOptions().circleCropTransform())
+                            .into(mProfilePicture);
+
+
+                    break;
 
             }
+
         }
+
     }
 
     private boolean isValidEditTextDatas(){

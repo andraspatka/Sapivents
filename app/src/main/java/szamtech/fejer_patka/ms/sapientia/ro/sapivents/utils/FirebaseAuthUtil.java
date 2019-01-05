@@ -158,14 +158,21 @@ public class FirebaseAuthUtil {
                             // Sign in failed, display a message and update the UI
                             Log.v(TAG, "signInWithCredential: failure" + task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+
                                 // The verification code entered was invalid
                                 Toast.makeText(mContext,"The verification code entered was invalid!",Toast.LENGTH_SHORT).show();
+                                verificationDialog().show();
+
                             }
                             else if(task.getException() instanceof FirebaseNetworkException){
+
                                 Toast.makeText(mContext, "Network error!", Toast.LENGTH_SHORT).show();
+
                             }
                             else{
+
                                 Toast.makeText(mContext, "Something went wrong during authentication!", Toast.LENGTH_SHORT).show();
+
                             }
                         }
                     }
@@ -189,13 +196,15 @@ public class FirebaseAuthUtil {
                         Log.w(TAG, "Sign In btn pressed in sign in dialog");
 
                         EditText editText = (EditText) view.findViewById(R.id.sign_in_dialog_validation_code);
-                        Log.w(TAG, "Ver code from edittext: " + editText.getText().toString());
                         verifyPhoneNumberWithCode(mVerificationId, editText.getText().toString());
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
                         Log.w(TAG, "Cancel btn pressed in sign in dialog");
+
                     }
                 });
         builder.setCancelable(false);

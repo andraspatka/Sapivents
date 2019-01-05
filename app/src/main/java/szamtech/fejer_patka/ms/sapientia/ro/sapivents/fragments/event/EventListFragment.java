@@ -78,14 +78,14 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
      */
     private void updateData(){
         //Get the data from SharedPreferences
-        /*mEvents = EventPrefUtil.getAllValues(getActivity());
+        mEvents = EventPrefUtil.getAllValues(getActivity());
         for(int i=0; i<mEvents.size(); ++i){
             if(!mEvents.get(i).isPublished()){
                 mEvents.remove(i);
             }
-        }*/
+        }
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        /*mDatabase = FirebaseDatabase.getInstance().getReference();
 
         Query listEventQuery = mDatabase.child("events").orderByChild("eventDate/date");
         listEventQuery.addValueEventListener(new ValueEventListener() {
@@ -96,8 +96,6 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
 
                     Event actualEvent = postSnapshot.getValue(Event.class);
                     mEvents.add(actualEvent);
-                    Log.v(TAG, "event - " + actualEvent.getImages().get(0));
-                    Log.v(TAG, "event - " + actualEvent.getEventDate());
                 }
 
             }
@@ -108,7 +106,7 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
 
             }
-        });
+        });*/
 
         //Create the adapter
         mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
