@@ -96,45 +96,49 @@ public class UserProfileViewFragment extends Fragment {
                 @Override
                 public void onSuccess(Uri uri) {
                     Log.v(TAG, "Profile picture loaded!");
-                    Glide.with(getActivity())
-                            .load(uri)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    return false;
-                                }
+                    if(getActivity() != null){
+                        Glide.with(getActivity())
+                                .load(uri)
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        mProgressBar.setVisibility(View.GONE);
+                                        return false;
+                                    }
 
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .apply(new RequestOptions().circleCropTransform())
-                            .into(mProfilePicture);
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        mProgressBar.setVisibility(View.GONE);
+                                        return false;
+                                    }
+                                })
+                                .apply(new RequestOptions().circleCropTransform())
+                                .into(mProfilePicture);
+                    }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     Log.v(TAG, "Error loading profile picure");
-                    Glide.with(getActivity())
-                            .load(R.drawable.ic_launcher_background)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    return false;
-                                }
+                    if(getActivity() != null){
+                        Glide.with(getActivity())
+                                .load(R.drawable.ic_launcher_background)
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        mProgressBar.setVisibility(View.GONE);
+                                        return false;
+                                    }
 
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .apply(new RequestOptions().circleCropTransform())
-                            .into(mProfilePicture);
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        mProgressBar.setVisibility(View.GONE);
+                                        return false;
+                                    }
+                                })
+                                .apply(new RequestOptions().circleCropTransform())
+                                .into(mProfilePicture);
+                        }
                 }
             });
 
@@ -181,7 +185,7 @@ public class UserProfileViewFragment extends Fragment {
                 getActivity(),
                 userSignInFragment,
                 R.id.fragment_place,
-                FragmentNavigationUtil.HOME_SCREEN);
+                FragmentNavigationUtil.REGISTRATION_SCREEN);
         //Set the padding to the R.id.fragment_place FrameLayout
         FrameLayout fragmentPlace = (FrameLayout) getActivity().findViewById(R.id.fragment_place);
         BottomNavigationView bottomNav = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);

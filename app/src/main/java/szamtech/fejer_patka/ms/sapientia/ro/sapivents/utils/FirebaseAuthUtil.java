@@ -68,7 +68,7 @@ public class FirebaseAuthUtil {
                     mLoadingDialog.endDialog();
                 }
 
-                //signInWithPhoneAuthCredential(credential);
+                signInWithPhoneAuthCredential(credential);
             }
             //Called when the timeout duration for auto-retrieval ended
             @Override

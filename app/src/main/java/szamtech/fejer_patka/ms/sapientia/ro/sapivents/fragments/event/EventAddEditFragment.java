@@ -66,6 +66,8 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     private int mImageCount;
     private LoadingDialogUtil mLoadingDialog;
 
+    private DateTime mEventDate = new DateTime();
+
     private int imageIndex = 0;
     //need to be declared final, because it is used in inner class OnProgressListener
     final int[] progressResult = new int[1];
@@ -163,7 +165,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             sEvent.setDescription(eventDescEditText.getText().toString());
             sEvent.setLocation(eventLocationEditText.getText().toString());
             Log.v(TAG, eventDateEditText.getText().toString());
-            sEvent.setEventDate(new DateTime(eventDateEditText.getText().toString()));
+            sEvent.setEventDate(mEventDate.toString());
             //The published state is true by default for new Events
 
             if(!sIsOpenForEditing){
@@ -179,8 +181,6 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             eventLocationEditText.setText("");
         }
     }
-
-
 
     /**
      * OnClick for the nextImage button
@@ -209,10 +209,12 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             }else{
                 --imageIndex;
             }
-            Glide.with(getActivity())
-                    .load(sEvent.getImages().get(imageIndex))
-                    .apply(new RequestOptions().centerCrop())
-                    .into(eventImageView);
+            if(getActivity() != null){
+                Glide.with(getActivity())
+                        .load(sEvent.getImages().get(imageIndex))
+                        .apply(new RequestOptions().centerCrop())
+                        .into(eventImageView);
+            }
         }
     }
 
@@ -240,7 +242,9 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        sEvent.setEventDate(new DateTime(year,month,dayOfMonth,0,0));
+        mEventDate.setYear(year);
+        mEventDate.setMonth(month+1);
+        mEventDate.setDay(dayOfMonth);
 
         // Create a new instance of TimePickerDialog and return it
         TimePickerDialog timePickerDialog =  new TimePickerDialog(getActivity(), this, hour, minute,
@@ -254,9 +258,11 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      */
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        sEvent.getEventDate().setHour(hourOfDay);
-        sEvent.getEventDate().setMinutes(minute);
-        eventDateEditText.setText(sEvent.getEventDate().toString());
+        mEventDate.setHour(hourOfDay);
+        mEventDate.setMinutes(minute);
+
+        sEvent.setEventDate(mEventDate.toString());
+        eventDateEditText.setText(mEventDate.toString());
     }
 
     /**
@@ -405,7 +411,6 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                                     }
 
                                 });
-
                     }
                 }
 
@@ -417,18 +422,12 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                     int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount()) * (mImageCount + 1) / mTotalImageNum;
 
                     if(progress > progressResult[0]){
-
                         progressResult[0] = progress;
                         mLoadingDialog.setDialogText("Upload is " + progress + "% done");
-
                     }
-
                 }
-
             });
-
         }
-
     }
 
     void checkUploadState(){

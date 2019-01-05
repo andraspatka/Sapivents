@@ -15,14 +15,11 @@ import java.util.ArrayList;
  * Implements Comparable an array of this class type can be sorted
  */
 public class Event implements Comparable<Event>, Serializable {
-    //Static id field, gets incremented every time a new object is created
-    //This ensures that each object has a unique identifier
-    private static int sId;
 
     private int id;
     private String title;
     private String description;
-    private DateTime eventDate;
+    private String eventDate;
     private String location;
     private ArrayList<String> images = new ArrayList<>();
     private String author;
@@ -36,9 +33,7 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    public Event(String title, String description, DateTime date, String location, ArrayList<String> images, String authorId, ArrayList<String> attendants, boolean published) {
-        this.id = sId;
-        ++sId;
+    public Event(String title, String description, String date, String location, ArrayList<String> images, String authorId, ArrayList<String> attendants, boolean published) {
         this.title = title;
         this.description = description;
         this.eventDate = date;
@@ -78,11 +73,11 @@ public class Event implements Comparable<Event>, Serializable {
         this.description = description;
     }
 
-    public DateTime getEventDate() {
+    public String getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(DateTime date) {
+    public void setEventDate(String date) {
         this.eventDate = date;
     }
 

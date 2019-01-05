@@ -26,7 +26,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
-public class UserEventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface {
+public class UserEventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface, EventsAdapter.EventListItemOnLongClickInterface {
     private List<Event> mEvents = new ArrayList<>();
     private EventsAdapter mEventsAdapter;
 
@@ -73,7 +73,7 @@ public class UserEventListFragment extends Fragment implements EventsAdapter.Eve
             }
         }
         //Create the adapter
-        mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
+        mEventsAdapter = new EventsAdapter(mEvents, getContext(), this, this);
         //Set the adapter to the recyclerview
         recyclerView.setAdapter(mEventsAdapter);
         //Notify the adapter that the dataset has been refreshed

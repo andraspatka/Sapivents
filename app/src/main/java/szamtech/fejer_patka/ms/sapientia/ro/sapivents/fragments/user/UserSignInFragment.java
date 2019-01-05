@@ -162,7 +162,11 @@ public class UserSignInFragment extends Fragment {
     @OnClick(R.id.not_register_button) void signUp(View v){
         Log.v(TAG, "notRegisteredBtn pushed");
         UserRegistrationFragment userRegistrationFragment = new UserRegistrationFragment();
-        FragmentNavigationUtil.addFragmentToScreen(getActivity(), userRegistrationFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
+        FragmentNavigationUtil.addFragmentToScreen(
+                getActivity(),
+                userRegistrationFragment,
+                R.id.fragment_place,
+                FragmentNavigationUtil.REGISTRATION_SCREEN);
     }
 
     private boolean isValidPhoneNumber(String phoneNumber){

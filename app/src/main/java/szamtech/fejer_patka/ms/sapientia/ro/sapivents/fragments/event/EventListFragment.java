@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import butterknife.BindView;
@@ -67,53 +68,37 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
         recyclerView.setLayoutManager(layoutManager);
         //TODO: Create custom ItemDecorator class
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
         updateData();
 
         return view;
     }
 
-    /**
-     * Gets data from sharedPreferences
-     * TODO: optimize this, if possible
-     */
     private void updateData(){
-        //Get the data from SharedPreferences
-        mEvents = EventPrefUtil.getAllValues(getActivity());
-        for(int i=0; i<mEvents.size(); ++i){
-            if(!mEvents.get(i).isPublished()){
-                mEvents.remove(i);
-            }
-        }
-
-        /*mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         Query listEventQuery = mDatabase.child("events").orderByChild("eventDate/date");
         listEventQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.v(TAG, "onDataChange()");
+                mEvents = new ArrayList<>();
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
 
                     Event actualEvent = postSnapshot.getValue(Event.class);
                     mEvents.add(actualEvent);
                 }
-
+                mEventsAdapter = new EventsAdapter(mEvents, getContext(), EventListFragment.this);
+                recyclerView.setAdapter(mEventsAdapter);
+                mEventsAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-
             }
-        });*/
-
-        //Create the adapter
-        mEventsAdapter = new EventsAdapter(mEvents, getContext(), this);
-        //Set the adapter to the recyclerview
-        recyclerView.setAdapter(mEventsAdapter);
-        //Notify the adapter that the dataset has been refreshed
-        mEventsAdapter.notifyDataSetChanged();
+        });
     }
 
     /**
@@ -133,19 +118,4 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                 FragmentNavigationUtil.HOME_SCREEN
         );
     }
-
-    /**
-     * Implemented method of
-     * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
-     * Gets called when a list item is long clicked (pressed)
-     * Opens a dialog with two buttons: Edit and Delete
-     * The Edit button opens the EventAddEditFragment for editing and passes in the current Event object
-     * THe Delete button deletes the Event
-     * @param event object which got long clicked
-     */
-    @Override
-    public void onLongClickEventItem(final Event event) {
-
-    }
-
 }

@@ -40,15 +40,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         ButterKnife.bind(this);
         //Bottom navigation
-
-        prepareData();
         mBottomNavigationView.setSelectedItemId(R.id.menu_home);
 
         //If the user is not authenticated, call this sign in fragment
         if(FirebaseAuth.getInstance().getCurrentUser() == null){
             //Create the UserSignInFragment
             UserSignInFragment userSignInFragment = new UserSignInFragment();
-            FragmentNavigationUtil.addFragmentToScreen(this, userSignInFragment, R.id.fragment_place, FragmentNavigationUtil.HOME_SCREEN);
+            FragmentNavigationUtil.addAsSingleFragment(
+                    this,
+                    userSignInFragment,
+                    R.id.fragment_place,
+                    FragmentNavigationUtil.REGISTRATION_SCREEN);
             mBottomNavigationView.setVisibility(View.INVISIBLE);
         }else{
             int bottomPaddingInPixels = (int) getResources().getDimension(R.dimen.bottom_nav_height);
@@ -70,30 +72,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
     }
 
-    //TODO: remove this once Firebase is integrated to the project
-    /**
-     * Saves a list of generated Event objects to SharedPreferences using the EventPrefUtil class
-     */
-    private void prepareData(){
-        ArrayList<String> images = new ArrayList<>();
-        images.add("https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Inside_the_Batad_rice_terraces.jpg/220px-Inside_the_Batad_rice_terraces.jpg");
-        images.add("https://images.pexels.com/photos/814499/pexels-photo-814499.jpeg?auto=compress&cs=tinysrgb&h=350");
-        images.add("https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg?auto=compress&cs=tinysrgb&h=350");
-        User author = new User("Pityiri","Palko");
-        ArrayList<String> attendants = new ArrayList<String>();
-        for(int i=0; i<50; ++i){
-            attendants.add("userId" + i);
-        }
-
-        EventPrefUtil.clearAll(this);
-        DateTime dateTime = new DateTime(2018,11,24,21,48);
-        for(int i = 0; i < 10; ++i){
-            Event event = new Event("Event" + i, getResources().getString(R.string.placeholder_text),dateTime,"itt",images,"author",attendants,true);
-            EventPrefUtil.saveEvent(this, event.getId() + "", event);
-        }
-    }
-
-
     /**
      * Callback method for bottom navigation
      * @param item
@@ -108,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             switch(item.getItemId()){
                 case R.id.menu_account:
                     UserProfileViewFragment accountFragment = new UserProfileViewFragment();
-                    FragmentNavigationUtil.screenSelected(
+                    FragmentNavigationUtil.addAsSingleFragment(
                             MainActivity.this,
                             accountFragment,
                             R.id.fragment_place,

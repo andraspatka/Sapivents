@@ -6,19 +6,16 @@ import java.util.Calendar;
 /**
  * Custom implementation of Calendaristic Date and Time
  * By Patka Zsolt-Andras
- * Updated on: 2018-11-30
- * Added year, month, day, hour, minutes fields as transient (transient fields are ignored during
- * serialization).
  * Written on 2018-11-24
  * Uses Hungarian date format YYYY-MM-DDThh:mm
  * Implements Serializable interface to tell the JVM that this class can be serialized
  */
 public class DateTime implements Serializable{
-    transient private int year;
-    transient private int month;
-    transient private int day;
-    transient private int hour;
-    transient private int minutes;
+    private int year;
+    private int month;
+    private int day;
+    private int hour;
+    private int minutes;
 
     private static final long serialVersionUID = 1738653275L;
 
@@ -87,72 +84,12 @@ public class DateTime implements Serializable{
         }else{
             this.day = day;
         }
-        //Build up the string
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(year).append("-");
-        addPaddingIfLessThanTen(stringBuilder, month).append("-");
-        addPaddingIfLessThanTen(stringBuilder, day).append("T");
-        addPaddingIfLessThanTen(stringBuilder, hour).append(":");
-        addPaddingIfLessThanTen(stringBuilder, minutes);
-        date = stringBuilder.toString();
-    }
-    /**
-     * Parses @param date with the following format to a DateTime object: YYYYsMMsDDshhsmm
-     * s -> separator, can be any character
-     * @throws InvalidDateTimeException if the format is not correct
-     */
-    public DateTime(String date) throws InvalidDateTimeException{
-        parseDate(date);
-        validateDate(year,month,day,hour,minutes);
     }
 
     public DateTime(){
 
     }
 
-    /**
-     * Extracts year, month, day, hour and minutes from a DateTime String
-     * In the given format the indexes are, as follows:
-     *  [0,3] - YYYY
-     *  [5,6] - MM
-     *  [8,9] - DD
-     *  [11,12] - hh
-     *  [14,15] - mm
-     * @param date given date in YYYYsMMsDDshhsmm format
-     * s -> separator, can be any character
-     */
-    private void parseDate(String date){
-        //parse YYYY
-        int year = 0;
-        for(int i = 0; i <= 3; ++i) {
-            year = year * 10 + Integer.parseInt(date.charAt(i) + "");
-        }
-        this.year = year;
-        //parse MM
-        int month = 0;
-        for(int i = 5; i <= 6; ++i) {
-            month = month * 10 + Integer.parseInt(date.charAt(i) + "");
-        }
-        this.month = month;
-        //parse DD
-        int day = 0;
-        for(int i = 8; i <= 9; ++i) {
-            day = day * 10 + Integer.parseInt(date.charAt(i) + "");
-        }
-        this.day = day;
-        //parse hh
-        int hour = 0;
-        for(int i = 11; i <= 12; ++i){
-            hour = hour * 10 + Integer.parseInt(date.charAt(i) + "");
-        }
-        this.hour = hour;
-        //parse mm
-        int minutes = 0;
-        for(int i = 14; i <= 15; ++i){
-            minutes = minutes * 10 + Integer.parseInt(date.charAt(i) + "");
-        }
-        this.minutes = minutes;
-    }
     /**
      * Adds a 0 as left padding to the number if it's less than 10
      * @param stringBuilder StringBuilder instance, temporarily holds the date string
@@ -173,6 +110,29 @@ public class DateTime implements Serializable{
     public String getTime(){
         return this.hour + ":" + this.minutes;
     }
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
 
     /**
      * Sets the hour
@@ -184,14 +144,6 @@ public class DateTime implements Serializable{
         if(hour < 0 || hour > 23){
             throw new InvalidDateTimeException();
         }
-        //Modify the date string, to reflect the change in hour
-        //Convert to charArray
-        char[] dateCharArray = this.date.toCharArray();
-        //Set the characters at the required indexes
-        dateCharArray[11] = (char) ((hour / 10) + '0');
-        dateCharArray[12] = (char) ((hour % 10) + '0');
-        //Convert back to String
-        this.date = String.valueOf(dateCharArray);
         this.hour = hour;
     }
 
@@ -205,14 +157,6 @@ public class DateTime implements Serializable{
         if(minutes < 0 || minutes > 59){
             throw new InvalidDateTimeException();
         }
-        //Modify the date string, to reflect the change in minutes
-        //Convert to charArray
-        char[] dateCharArray = this.date.toCharArray();
-        //Set the characters at the required indexes
-        dateCharArray[14] = (char) ((minutes / 10) + '0');
-        dateCharArray[15] = (char) ((minutes % 10) + '0');
-        //Convert back to String
-        this.date = String.valueOf(dateCharArray);
         this.minutes = minutes;
     }
 
@@ -221,7 +165,6 @@ public class DateTime implements Serializable{
      */
     @Override
     public String toString() {
-        parseDate(date);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(year).append(".");
         addPaddingIfLessThanTen(stringBuilder, month).append(".");
@@ -230,7 +173,6 @@ public class DateTime implements Serializable{
         addPaddingIfLessThanTen(stringBuilder, minutes);
         return stringBuilder.toString();
     }
-
 
     /**
      * Custom Exception class
