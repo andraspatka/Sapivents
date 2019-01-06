@@ -1,6 +1,5 @@
 package szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans;
 
-import android.app.Dialog;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
@@ -8,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User implements Serializable, Comparable<User> {
-    //Temporary. only while using shared preferences
-    private static int sId;
 
     private int id;
     private String firstName;
@@ -20,8 +17,6 @@ public class User implements Serializable, Comparable<User> {
 
     //For Shared Preferences
     public User(String firstName, String lastName) {
-        this.id = id;
-        ++sId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profilePicture = "";

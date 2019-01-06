@@ -33,9 +33,6 @@ import butterknife.ButterKnife;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.R;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.beans.Event;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventAddEditFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventDetailFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.fragments.event.EventListFragment;
-import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
