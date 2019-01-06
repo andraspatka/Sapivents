@@ -137,6 +137,12 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         //If the fragment is opened for editing, then fill the EditText and ImageView views with
         //the event's details
         if(sIsOpenForEditing){
+            eventPublishedButton.setVisibility(View.VISIBLE);
+            if(sEvent.isPublished()){
+                eventPublishedButton.setImageResource(R.drawable.ic_visibility_white_24dp);
+            } else {
+                eventPublishedButton.setImageResource(R.drawable.ic_visibility_off_white_24dp);
+            }
             eventChangeImage.setText("Change Image");
             eventNameEditText.setText(sEvent.getTitle());
             eventDescEditText.setText(sEvent.getDescription());
@@ -144,25 +150,26 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             eventLocationEditText.setText(sEvent.getLocation());
             if(!sEvent.getImages().isEmpty()){
                 mProgressBar.setVisibility(View.VISIBLE);
-                Glide.with(getActivity())
-                        .load(sEvent.getImages().get(0))
-                        .listener(new RequestListener<Drawable>() {
+                if(getActivity() != null) {
+                    Glide.with(getActivity())
+                            .load(sEvent.getImages().get(0))
+                            .listener(new RequestListener<Drawable>() {
 
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                return false;
-                            }
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
 
-                            @Override
-                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                mProgressBar.setVisibility(View.GONE);
-                                return false;
-                            }
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    mProgressBar.setVisibility(View.GONE);
+                                    return false;
+                                }
 
-                        })
-                        .apply(new RequestOptions().centerCrop().override(132,132))
-                        .into(eventImageView);
-                eventPublishedButton.setVisibility(View.VISIBLE);
+                            })
+                            .apply(new RequestOptions().centerCrop().override(132, 132))
+                            .into(eventImageView);
+                }
             }
         }
         else{

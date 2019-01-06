@@ -86,7 +86,9 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
 
                     Event actualEvent = postSnapshot.getValue(Event.class);
-                    mEvents.add(actualEvent);
+                    if(actualEvent != null && actualEvent.isPublished()){
+                        mEvents.add(actualEvent);
+                    }
                 }
                 mEventsAdapter = new EventsAdapter(mEvents, getContext(), EventListFragment.this);
                 recyclerView.setAdapter(mEventsAdapter);

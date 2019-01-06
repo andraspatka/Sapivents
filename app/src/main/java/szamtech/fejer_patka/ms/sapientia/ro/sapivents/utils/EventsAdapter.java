@@ -32,23 +32,16 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
 
     //Instance of the interface. Used for communicating with EventListFragment
     private EventListItemOnClickInterface mEventListItemOnClickInterface;
-    private EventListItemOnLongClickInterface mEventListItemOnLongClikInterface;
 
     private static final String TAG = "EventsAdapter";
 
 
     public EventsAdapter(List<Event> events, Context context, EventListItemOnClickInterface eventListItemOnClickInterface){
-        this(events,context,eventListItemOnClickInterface, null);
-    }
-
-
-    public EventsAdapter(List<Event> events, Context context, EventListItemOnClickInterface eventListItemOnClickInterface,
-                         EventListItemOnLongClickInterface eventListItemOnLongClickInterface){
         this.mEventsList = events;
         this.mContext = context;
         this.mEventListItemOnClickInterface = eventListItemOnClickInterface;
-        this.mEventListItemOnLongClikInterface = eventListItemOnLongClickInterface;
     }
+
 
     @Override
     public EventsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -63,15 +56,6 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
                 @Override
                 public void onClick(View v) {
                     mEventListItemOnClickInterface.onClickEventItem(mEventsList.get(holder.getAdapterPosition()));
-                }
-            });
-        }
-        if(mEventListItemOnLongClikInterface != null){
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    mEventListItemOnLongClikInterface.onLongClickEventItem(mEventsList.get(holder.getAdapterPosition()));
-                    return true;
                 }
             });
         }
@@ -152,12 +136,5 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.EventsView
      */
     public interface EventListItemOnClickInterface {
         void onClickEventItem(Event event);
-    }
-
-    /**
-     * Interface for passing long click events
-     */
-    public interface EventListItemOnLongClickInterface{
-        void onLongClickEventItem(Event event);
     }
 }

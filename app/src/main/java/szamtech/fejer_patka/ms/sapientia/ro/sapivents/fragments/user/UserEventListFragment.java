@@ -39,7 +39,7 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventPrefUtil;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter;
 import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUtil;
 
-public class UserEventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface, EventsAdapter.EventListItemOnLongClickInterface {
+public class UserEventListFragment extends Fragment implements EventsAdapter.EventListItemOnClickInterface {
     private List<Event> mEvents = new ArrayList<>();
     private EventsAdapter mEventsAdapter;
 
@@ -99,7 +99,7 @@ public class UserEventListFragment extends Fragment implements EventsAdapter.Eve
                     Log.v(TAG, actualEvent.getTitle());
 
                 }
-                mEventsAdapter = new EventsAdapter(mEvents, getContext(), UserEventListFragment.this, UserEventListFragment.this);
+                mEventsAdapter = new EventsAdapter(mEvents, getContext(), UserEventListFragment.this);
                 recyclerView.setAdapter(mEventsAdapter);
                 mEventsAdapter.notifyDataSetChanged();
             }
@@ -120,21 +120,7 @@ public class UserEventListFragment extends Fragment implements EventsAdapter.Eve
      * @param event the event which got clicked
      */
     @Override
-    public void onClickEventItem(Event event) {
-
-    }
-
-    /**
-     * Implemented method of
-     * {@link szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.EventsAdapter.EventListItemOnClickInterface}
-     * Gets called when a list item is long clicked (pressed)
-     * Opens a dialog with two buttons: Edit and Delete
-     * The Edit button opens the EventAddEditFragment for editing and passes in the current Event object
-     * THe Delete button deletes the Event
-     * @param event object which got long clicked
-     */
-    @Override
-    public void onLongClickEventItem(final Event event) {
+    public void onClickEventItem(final Event event) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //builder.setTitle(R.string.pick_color)
         String options[] ={"Edit", "Delete"};
