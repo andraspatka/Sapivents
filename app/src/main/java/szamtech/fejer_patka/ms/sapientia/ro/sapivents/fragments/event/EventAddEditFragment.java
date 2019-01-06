@@ -4,9 +4,11 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
@@ -19,11 +21,16 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,6 +75,10 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
 
     private DateTime mEventDate = new DateTime();
 
+    final ArrayList<String> s_eventImages = new ArrayList<>();
+    final String[] postId = new String[1];
+    private boolean isNewImageSelected;
+
     private int imageIndex = 0;
     //need to be declared final, because it is used in inner class OnProgressListener
     final int[] progressResult = new int[1];
@@ -82,6 +93,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     @BindView(R.id.event_edit_add_date_edit_text) EditText eventDateEditText;
     @BindView(R.id.event_edit_add_location_edit_text) EditText eventLocationEditText;
     @BindView(R.id.event_edit_add_published) ImageButton eventPublishedButton;
+    @BindView(R.id.event_edit_progressBar) ProgressBar mProgressBar;
 
     public EventAddEditFragment() {
         // Required empty public constructor
@@ -114,6 +126,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference("events");
         mStorage = FirebaseStorage.getInstance();
+        isNewImageSelected = false;
     }
 
     @Override
@@ -124,17 +137,37 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         //If the fragment is opened for editing, then fill the EditText and ImageView views with
         //the event's details
         if(sIsOpenForEditing){
+            eventChangeImage.setText("Change Image");
             eventNameEditText.setText(sEvent.getTitle());
             eventDescEditText.setText(sEvent.getDescription());
             eventDateEditText.setText(sEvent.getEventDate().toString());
             eventLocationEditText.setText(sEvent.getLocation());
             if(!sEvent.getImages().isEmpty()){
+                mProgressBar.setVisibility(View.VISIBLE);
                 Glide.with(getActivity())
                         .load(sEvent.getImages().get(0))
+                        .listener(new RequestListener<Drawable>() {
+
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                mProgressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                        })
                         .apply(new RequestOptions().centerCrop().override(132,132))
                         .into(eventImageView);
                 eventPublishedButton.setVisibility(View.VISIBLE);
             }
+        }
+        else{
+            mProgressBar.setVisibility(View.GONE);
+            eventChangeImage.setText("Add Image");
         }
 
         return view;
@@ -188,11 +221,26 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      * @param v Button's view
      */
     @OnClick(R.id.event_edit_add_next_image_button) void nextImage(View v){
+        mProgressBar.setVisibility(View.VISIBLE);
         if(!sEvent.getImages().isEmpty()){
             ++imageIndex;
             imageIndex = imageIndex % sEvent.getImages().size();
             Glide.with(getActivity())
                     .load(sEvent.getImages().get(imageIndex))
+                    .listener(new RequestListener<Drawable>() {
+
+                          @Override
+                          public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                              return false;
+                          }
+
+                          @Override
+                          public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                              mProgressBar.setVisibility(View.GONE);
+                              return false;
+                          }
+
+                    })
                     .apply(new RequestOptions().centerCrop())
                     .into(eventImageView);
         }
@@ -203,6 +251,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      * @param v Button's view
      */
     @OnClick(R.id.event_edit_add_prev_image_button) void prevImage(View v){
+        mProgressBar.setVisibility(View.VISIBLE);
         if(!sEvent.getImages().isEmpty()){
             if(imageIndex == 0){
                 imageIndex = sEvent.getImages().size()-1;
@@ -212,6 +261,20 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
             if(getActivity() != null){
                 Glide.with(getActivity())
                         .load(sEvent.getImages().get(imageIndex))
+                        .listener(new RequestListener<Drawable>() {
+
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                mProgressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                        })
                         .apply(new RequestOptions().centerCrop())
                         .into(eventImageView);
             }
@@ -272,10 +335,30 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         if(sEvent.isPublished()){
             eventPublishedButton.setImageResource(R.drawable.ic_visibility_off_white_24dp);
             sEvent.setPublished(false);
+            setEventPusblishedState(sEvent.getKey(), false);
         }else{
             eventPublishedButton.setImageResource(R.drawable.ic_visibility_white_24dp);
             sEvent.setPublished(true);
+            setEventPusblishedState(sEvent.getKey(), true);
         }
+    }
+
+    void setEventPusblishedState(String key, final boolean state){
+
+        mDatabase.child(key + "/published").setValue(state)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(getActivity(), "Event publication state changed to: " + state + "!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getActivity(), "Error changing event publication state!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
 
     //TODO: Figure this out
@@ -285,6 +368,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      * @param v
      */
     @OnClick(R.id.event_edit_add_change_image_button) void changeImage(View v){
+        isNewImageSelected = true;
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         photoPickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -334,20 +418,114 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         mLoadingDialog = new LoadingDialogUtil(getContext());
         mLoadingDialog.showDialog();
 
-        final String postId = mDatabase.push().getKey();
-        sEvent.setKey(postId);
+        if(sIsOpenForEditing){
+
+            if(isNewImageSelected){
+
+                uploadImages();
+
+            }
+            else{
+
+                uploadEventToDatabase();
+
+            }
+
+        }
+        else{
+
+            postId[0] = mDatabase.push().getKey();
+            sEvent.setKey(postId[0]);
+            uploadImages();
+        }
+
+    }
+
+    void checkUploadState(){
+        ++mImageCount;
+
+        //if every image is uploaded to storage
+        if(mImageCount == mTotalImageNum){
+            //setting up uploaded image url's to event
+            sEvent.setImages(s_eventImages);
+
+            //uploading event data to database
+            uploadEventToDatabase();
+
+        }
+
+    }
+
+    public void uploadEventToDatabase(){
+
+        //checking if fragment is invoked to add or to edit event
+        String childId;
+        if(sIsOpenForEditing){
+            childId = sEvent.getKey();
+            sEvent.setEventDate(eventDateEditText.getText().toString());
+        }
+        else{
+            childId = postId[0];
+        }
+
+        //uploading new event to database
+        mDatabase.child(childId).setValue(sEvent)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        //if the images uploaded successfully the we upload the extra data to database
+                        //and show to user a  text about the result
+                        Log.v(TAG, "Data uploaded");
+                        Toast.makeText(getActivity(), "Event successfully uploaded!", Toast.LENGTH_SHORT).show();
+                        returnToHomePage();
+
+                    }
+
+                })
+                .addOnFailureListener(new OnFailureListener() {
+
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Log.v(TAG, "Data uploading failed");
+                        Toast.makeText(getActivity(), "Error uploading event, please try again!", Toast.LENGTH_SHORT).show();
+                        returnToHomePage();
+
+                    }
+
+                });
+
+    }
+
+    public void returnToHomePage(){
+
+        mLoadingDialog.endDialog();
+
+        //If it's open for editing, then we are in the same navigation tab,
+        //so FragmentNavigationUtil.popFragment method is appropriate
+        if(sIsOpenForEditing){
+            FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
+        }
+        //Get the BottomNavigationView and set the appropriate icon as selected
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
+        bottomNavigationView.setSelectedItemId(R.id.menu_home);
+
+    }
+
+    public void uploadImages(){
 
         final StorageReference storageRef = mStorage.getReference();
 
         mTotalImageNum = sEvent.getImages().size();
         //aux variable for storing actual progress value
         final int s_progress = 0;
-        final ArrayList<String> s_eventImages = new ArrayList<>();
+
         for(int i = 0; i<sEvent.getImages().size(); ++i){
 
             final int pos = i;
 
-            StorageReference imageRef = storageRef.child("images/eventImages/" + postId + "/img" + pos);
+            StorageReference imageRef = storageRef.child("images/eventImages/" + postId[0] + "/img" + pos);
 
             UploadTask uploadTask = imageRef.putFile(Uri.parse(sEvent.getImages().get(i)));
             uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -365,53 +543,26 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
 
                     Log.v(TAG, "image uploaded");
 
-                    storageRef.child("images/eventImages/" + postId + "/img" + pos).getDownloadUrl()
+                    storageRef.child("images/eventImages/" + postId[0] + "/img" + pos).getDownloadUrl()
                             .addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     Log.v(TAG, "image url onSuccess");
                                     s_eventImages.add(uri.toString());
+                                    checkUploadState();
                                 }
 
                             }).addOnFailureListener(new OnFailureListener() {
 
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    Log.v(TAG, "image url onFailure");
-                                }
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.v(TAG, "image url onFailure");
+                            checkUploadState();
+                        }
 
-                            });
+                    });
 
-                    checkUploadState();
-
-                    //if every image is uploaded to storage
-                    if(mImageCount == mTotalImageNum){
-                        //setting up uploaded image url's to event
-                        sEvent.setImages(s_eventImages);
-
-                        //uploading new event to database
-                        mDatabase.child(postId).setValue(sEvent)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.v(TAG, "Data uploaded");
-                                        Log.v(TAG, "Event successfully uploaded");
-                                    }
-
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.v(TAG, "Data uploading failed");
-                                        Log.v(TAG, "Error uploading event, please try again!");
-
-                                    }
-
-                                });
-                    }
                 }
 
             }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -422,29 +573,18 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                     int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount()) * (mImageCount + 1) / mTotalImageNum;
 
                     if(progress > progressResult[0]){
+
                         progressResult[0] = progress;
                         mLoadingDialog.setDialogText("Upload is " + progress + "% done");
+
                     }
+
                 }
+
             });
-        }
-    }
-
-    void checkUploadState(){
-        ++mImageCount;
-        if(mImageCount == mTotalImageNum){
-
-            mLoadingDialog.endDialog();
-
-            //If it's open for editing, then we are in the same navigation tab,
-            //so FragmentNavigationUtil.popFragment method is appropriate
-            if(sIsOpenForEditing){
-                FragmentNavigationUtil.popFragment(getActivity(), R.id.fragment_place);
-            }
-            //Get the BottomNavigationView and set the appropriate icon as selected
-            BottomNavigationView bottomNavigationView = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
-            bottomNavigationView.setSelectedItemId(R.id.menu_home);
 
         }
+
     }
+
 }

@@ -16,14 +16,13 @@ import java.util.ArrayList;
  */
 public class Event implements Comparable<Event>, Serializable {
 
-    private int id;
     private String title;
     private String description;
     private String eventDate;
     private String location;
     private ArrayList<String> images = new ArrayList<>();
     private String author;
-    private ArrayList<String> attendants;
+    private int attendants;
     private boolean published;
     private String key; //this is for identifying in database
 
@@ -31,9 +30,10 @@ public class Event implements Comparable<Event>, Serializable {
     public Event(String title, String description) {
         this.title = title;
         this.description = description;
+        this.attendants = 0;
     }
 
-    public Event(String title, String description, String date, String location, ArrayList<String> images, String authorId, ArrayList<String> attendants, boolean published) {
+    public Event(String title, String description, String date, String location, ArrayList<String> images, String authorId, int attendants, boolean published) {
         this.title = title;
         this.description = description;
         this.eventDate = date;
@@ -42,19 +42,11 @@ public class Event implements Comparable<Event>, Serializable {
         this.author = authorId;
         this.attendants = attendants;
         this.published = published;
-        this.attendants.add("");
+        this.attendants = 0;
     }
 
     public Event(){
 
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -109,11 +101,11 @@ public class Event implements Comparable<Event>, Serializable {
         this.author = authorId;
     }
 
-    public ArrayList<String> getAttendants() {
+    public int getAttendants() {
         return attendants;
     }
 
-    public void setAttendants(ArrayList<String> attendants) {
+    public void setAttendants(int attendants) {
         this.attendants = attendants;
     }
 
