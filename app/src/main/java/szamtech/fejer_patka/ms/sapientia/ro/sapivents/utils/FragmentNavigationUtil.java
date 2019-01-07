@@ -178,5 +178,4 @@ public class FragmentNavigationUtil {
             super("Invalid Screen: " + screen);
         }
     }
-
 }
