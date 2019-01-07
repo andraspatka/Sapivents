@@ -37,10 +37,9 @@
         <ImageButton
             android:id="@+id/event_detail_next_image_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/image_button_edge"
             android:layout_marginEnd="8dp"
-            android:background="@color/buttonColor"
-            android:src="@drawable/ic_next_white24dp"
+            android:src="@drawable/ic_next"
             app:layout_constraintBottom_toBottomOf="@+id/event_detail_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/event_detail_image" />
@@ -48,10 +47,9 @@
         <ImageButton
             android:id="@+id/event_detail_prev_image_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/image_button_edge"
             android:layout_marginStart="8dp"
-            android:background="@color/buttonColor"
-            android:src="@drawable/ic_navigate_before_white_24dp"
+            android:src="@drawable/ic_before"
             app:layout_constraintBottom_toBottomOf="@+id/event_detail_image"
             app:layout_constraintStart_toStartOf="@+id/event_detail_image"
             app:layout_constraintTop_toTopOf="@+id/event_detail_image" />

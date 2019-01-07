@@ -8,30 +8,33 @@
     android:layout_height="match_parent"
     tools:context=".fragments.user.UserProfileViewFragment">
 
-    <Button
+    <ImageButton
         android:id="@+id/user_profile_edit_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/image_button_edge"
+        android:layout_height="@dimen/image_button_edge"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:background="@color/mustard"
-        android:textColor="@color/buttonTextColor"
-        android:text="@string/user_profile_edit_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_profile_sign_out_btn" />
-
-    <Button
-        android:id="@+id/user_profile_sign_out_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="@color/mustard"
-        android:textColor="@color/buttonTextColor"
-        android:text="Sign out"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintBottom_toBottomOf="@+id/user_profile_image"
+        app:layout_constraintEnd_toStartOf="@+id/user_profile_image"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/user_profile_sign_out_btn"
+        android:layout_width="@dimen/image_button_edge"
+        android:layout_height="@dimen/image_button_edge"
+        android:src="@drawable/ic_sign_out"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/user_profile_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/user_profile_image"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/user_profile_events_btn"
@@ -40,7 +43,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/mustard"
         android:text="@string/my_events_button_text"
         android:textColor="@color/buttonTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -52,42 +54,41 @@
         android:layout_width="187dp"
         android:layout_height="38dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="196dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
         android:text="@string/user_fname_textView"
+        app:layout_constraintBottom_toTopOf="@+id/user_profile_last_name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/user_profile_last_name"
         android:layout_width="187dp"
         android:layout_height="38dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
         android:text="@string/user_lname_textView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_profile_first_name" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/user_profile_phone_number"
         android:layout_width="187dp"
-        android:layout_height="38dp"
+        android:layout_height="37dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="136dp"
+        android:gravity="center"
         android:text="@string/user_phone_number_textView"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_profile_last_name"
-        app:layout_constraintVertical_bias="0.379" />
+        app:layout_constraintTop_toBottomOf="@+id/user_profile_last_name" />
 
     <ProgressBar
         android:id="@+id/user_view_img_progress"
@@ -101,6 +102,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/user_profile_image" />
+
 
     <ImageView
         android:id="@+id/user_profile_image"

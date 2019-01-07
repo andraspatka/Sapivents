@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="image_button_edge">50dp</dimen>
+    <dimen name="logo_edge">150dp</dimen>
     <dimen name="logo_height">45dp</dimen>
     <dimen name="bottom_nav_height">56dp</dimen>
     <dimen name="text_size">16sp</dimen>

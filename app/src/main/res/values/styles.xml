@@ -11,19 +11,19 @@
     </style>
 
     <style name="btnStyle" parent="Widget.AppCompat.Button.Borderless.Colored">
-        <item name="android:background">@color/colorAccent</item>
+        <item name="android:background">@drawable/rounded_rectangle</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:elevation">6dp</item>
     </style>
 
     <style name="imageBtnStyle">
-        <item name="android:background">@color/colorAccent</item>
-        <item name="android:elevation">5dp</item>
+        <item name="android:background">@drawable/rounded_rectangle</item>
+        <item name="android:elevation">6dp</item>
     </style>
 
     <style name="editTxtStyle" parent="Base.Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:textColorHint">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColorHint">@color/colorPrimaryDark</item>
     </style>
 
 </resources>

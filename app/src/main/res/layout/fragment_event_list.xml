@@ -15,4 +15,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/event_list_no_events_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:visibility="invisible"
+        android:text="@string/no_events"
+        android:gravity="center"
+        android:layout_gravity="center"/>
+
 </FrameLayout>

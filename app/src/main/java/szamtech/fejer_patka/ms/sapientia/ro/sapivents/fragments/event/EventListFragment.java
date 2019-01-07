@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +43,7 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
 
     private static final String TAG = "EventListFragment";
     @BindView(R.id.event_list_recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.event_list_no_events_text_view) TextView noEventsTextView;
 
     public EventListFragment() {
         // Required empty public constructor
@@ -87,9 +89,14 @@ public class EventListFragment extends Fragment implements EventsAdapter.EventLi
                         mEvents.add(actualEvent);
                     }
                 }
-                mEventsAdapter = new EventsAdapter(mEvents, getContext(), EventListFragment.this);
-                recyclerView.setAdapter(mEventsAdapter);
-                mEventsAdapter.notifyDataSetChanged();
+                if(mEvents.size() == 0){
+                    noEventsTextView.setVisibility(View.VISIBLE);
+                }else{
+                    noEventsTextView.setVisibility(View.INVISIBLE);
+                    mEventsAdapter = new EventsAdapter(mEvents, getContext(), EventListFragment.this);
+                    recyclerView.setAdapter(mEventsAdapter);
+                    mEventsAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override

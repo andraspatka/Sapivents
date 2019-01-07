@@ -84,7 +84,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
     final int[] progressResult = new int[1];
 
     @BindView(R.id.event_edit_add_save_button) Button eventSaveButton;
-    @BindView(R.id.event_edit_add_change_image_button) Button eventChangeImage;
+    @BindView(R.id.event_edit_add_change_image_button) ImageButton eventChangeImage;
     @BindView(R.id.event_edit_add_name_edit_text) EditText eventNameEditText;
     @BindView(R.id.event_edit_add_desc_edit_text) EditText eventDescEditText;
     @BindView(R.id.event_edit_add_image) ImageView eventImageView;
@@ -139,11 +139,10 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
         if(sIsOpenForEditing){
             eventPublishedButton.setVisibility(View.VISIBLE);
             if(sEvent.isPublished()){
-                eventPublishedButton.setImageResource(R.drawable.ic_visibility_white_24dp);
+                eventPublishedButton.setImageResource(R.drawable.ic_visible);
             } else {
-                eventPublishedButton.setImageResource(R.drawable.ic_visibility_off_white_24dp);
+                eventPublishedButton.setImageResource(R.drawable.ic_invisible);
             }
-            eventChangeImage.setText("Change Image");
             eventNameEditText.setText(sEvent.getTitle());
             eventDescEditText.setText(sEvent.getDescription());
             eventDateEditText.setText(sEvent.getEventDate().toString());
@@ -167,14 +166,13 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
                                 }
 
                             })
-                            .apply(new RequestOptions().centerCrop().override(132, 132))
+                            .apply(new RequestOptions().centerCrop())
                             .into(eventImageView);
                 }
             }
         }
         else{
             mProgressBar.setVisibility(View.GONE);
-            eventChangeImage.setText("Add Image");
         }
 
         return view;
@@ -340,11 +338,11 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      */
     @OnClick(R.id.event_edit_add_published) void togglePublished(View v){
         if(sEvent.isPublished()){
-            eventPublishedButton.setImageResource(R.drawable.ic_visibility_off_white_24dp);
+            eventPublishedButton.setImageResource(R.drawable.ic_invisible);
             sEvent.setPublished(false);
             setEventPusblishedState(sEvent.getKey(), false);
         }else{
-            eventPublishedButton.setImageResource(R.drawable.ic_visibility_white_24dp);
+            eventPublishedButton.setImageResource(R.drawable.ic_visible);
             sEvent.setPublished(true);
             setEventPusblishedState(sEvent.getKey(), true);
         }

@@ -31,4 +31,5 @@
     <string name="user_fname_textView">First Name</string>
     <string name="user_lname_textView">Last Name</string>
     <string name="user_phone_number_textView">Phone Number</string>
+    <string name="no_events">You haven\'t created any events yet</string>
 </resources>

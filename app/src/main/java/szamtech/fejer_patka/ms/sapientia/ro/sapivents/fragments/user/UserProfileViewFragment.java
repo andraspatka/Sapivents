@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,9 +49,9 @@ import szamtech.fejer_patka.ms.sapientia.ro.sapivents.utils.FragmentNavigationUt
  */
 public class UserProfileViewFragment extends Fragment {
 
-    @BindView(R.id.user_profile_sign_out_btn) Button mSignOutButton;
+    @BindView(R.id.user_profile_sign_out_btn) ImageButton mSignOutButton;
     @BindView(R.id.user_profile_events_btn) Button mEventsButton;
-    @BindView(R.id.user_profile_edit_btn) Button mEditButton;
+    @BindView(R.id.user_profile_edit_btn) ImageButton mEditButton;
     @BindView(R.id.user_profile_first_name) TextView mFirstName;
     @BindView(R.id.user_profile_last_name) TextView mLastName;
     @BindView(R.id.user_profile_phone_number) TextView mPhoneNumber;
