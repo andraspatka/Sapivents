@@ -3,22 +3,20 @@
 ## You can find the project specification [here](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Specification.pdf)
 ## [Project styleguide](https://github.com/andraspatka/Sapivents/blob/development/Documentation/Styleguide.pdf)
 
-# WORK IN PROGRESS
-# Encounter with dragons is highly possible. You've been warned!
-
 # Some explanation to the classes in the util package:
 ## [EventPrefUtil.java](https://github.com/andraspatka/Sapivents/blob/development/app/src/main/java/szamtech/fejer_patka/ms/sapientia/ro/sapivents/utils/EventPrefUtil.java)
 This class is used for storing Event objects in SharedPreferences.<br/>  Will be removed once Firebase is fully integrated into the project
 ## [FragmentNavigationUtil.java](https://github.com/andraspatka/Sapivents/blob/development/app/src/main/java/szamtech/fejer_patka/ms/sapientia/ro/sapivents/utils/FragmentNavigationUtil.java)
 This class is used for fragment management with bottom navigation. <br/>
-Has four constant fields: 
+Has five constant fields: 
 ```java
     //Number of bottom navigation elements
-    public static final int NUMBER_OF_SCREENS = 3;
+    public static final int NUMBER_OF_SCREENS = 4;
     //Bottom navigation element indexes
     public static final int ACCOUNT_SCREEN = 0;
     public static final int HOME_SCREEN = 1;
     public static final int ADD_SCREEN = 2;
+    public static final int REGISTRATION_SCREEN = 3;
 ```
 Each of these constant values are an index in this data structure:
 ```java
@@ -161,11 +159,11 @@ The return value from popFragment() is used here
 RecyclerView.Adapter used for listing Events.
 
 ## [DateTime.java](https://github.com/andraspatka/Sapivents/blob/development/app/src/main/java/szamtech/fejer_patka/ms/sapientia/ro/sapivents/beans/DateTime.java)
-I had a lot of trouble finding built-in Date class which isn't deprecated and is already supported in Android 6.0 (sdk level 23) <br/>
+I had a lot of trouble finding a built-in Date class which isn't deprecated and is already supported in Android 6.0 (sdk level 23) <br/>
 <b>So I decided to write my own</b><br/>
 I store the date in the following format: <b>YYYY-MM-DDThh:mm</b><br/>
 The goal for this class is to have the DateTime be <b>ONLY</b> a string when Serialized <br/>
-I do have year, month, day, hour, minutes attributes as well, but these are transient, which means that they will be ignored during serialization
+I do have year, month, day, hour, minutes attributes as well, but these are transient, which means that they will be ignored during serialization. That was the dream, but along the way things got complicated and only a severely gutted version of my DateTime class got included in the final project.
 
 
 
