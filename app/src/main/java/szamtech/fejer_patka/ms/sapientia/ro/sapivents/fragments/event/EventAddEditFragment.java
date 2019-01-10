@@ -373,6 +373,7 @@ public class EventAddEditFragment extends Fragment implements DatePickerDialog.O
      * @param v
      */
     @OnClick(R.id.event_edit_add_change_image_button) void changeImage(View v){
+        sEvent.setImages(null);
         isNewImageSelected = true;
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
