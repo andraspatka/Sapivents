@@ -72,6 +72,9 @@ public class UserProfileEditFragment extends Fragment {
     private static User mActualUser = null;
     private FirebaseStorage mStorage;
     private String mProfilePictureUri;
+    private boolean imgButtonPressed = false;
+
+    LoadingDialogUtil loadingDialog;
 
     @BindView(R.id.user_profile_save_btn) Button mSaveButton;
     @BindView(R.id.usr_profile_fname_editText) EditText mFirstName;
@@ -174,12 +177,12 @@ public class UserProfileEditFragment extends Fragment {
 
     @OnClick(R.id.user_profile_save_btn) void saveProfileDatas(View v){
         Log.v(TAG, "save btn pushed");
-        if(isValidEditTextDatas()){
+        if(isValidEditTextDatas() && imgButtonPressed){
 
             StorageReference storageRef = mStorage.getReference();
             StorageReference imageRef = storageRef.child("images/profilePictures/" + mFirebaseUser.getPhoneNumber());
 
-            final LoadingDialogUtil loadingDialog = new LoadingDialogUtil(getContext());
+            loadingDialog = new LoadingDialogUtil(getContext());
             loadingDialog.setDialogText("Uploading changes...");
             loadingDialog.showDialog();
 
@@ -197,51 +200,7 @@ public class UserProfileEditFragment extends Fragment {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                    mDatabase = FirebaseDatabase.getInstance().getReference("users/" + mFirebaseUser.getPhoneNumber());
-                    Map newUserData = new HashMap();
-                    newUserData.put("firstName", mFirstName.getText().toString());
-                    newUserData.put("lastName", mLastName.getText().toString());
-                    mDatabase.updateChildren(newUserData)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                                loadingDialog.endDialog();
-                                Toast.makeText(getActivity(), "User data changed!", Toast.LENGTH_SHORT).show();
-
-                                //The user registered successfully, so redirect him to the EventListFragment
-                                //Set the bottom and top padding
-                                int bottomPaddingInPixels = (int) getActivity().getResources().getDimension(R.dimen.bottom_nav_height);
-                                int topPaddingInPixels = (int) getActivity().getResources().getDimension(R.dimen.logo_height);
-                                //Get the fragment_place FrameLayout
-                                FrameLayout fragmentPlace = (FrameLayout) getActivity().findViewById(R.id.fragment_place);
-                                //Get the bottom nav
-                                BottomNavigationView bottomNav = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
-                                //Set home as the selected bottom navigation item
-                                bottomNav.setSelectedItemId(R.id.menu_account);
-                                //Set the padding to the R.id.fragment_place FrameLayout
-                                fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
-                                //Make the bottom navigation visible
-                                bottomNav.setVisibility(View.VISIBLE);
-
-                                //Add the fragment
-                                UserProfileViewFragment userProfileViewFragment = new UserProfileViewFragment();
-                                FragmentNavigationUtil.addAsSingleFragment(
-                                        getActivity(),
-                                        userProfileViewFragment,
-                                        R.id.fragment_place,
-                                        FragmentNavigationUtil.ACCOUNT_SCREEN
-                                );
-
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                loadingDialog.endDialog();
-                                Toast.makeText(getActivity(), "Something went wrong, please try again!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    uploadUserData();
 
                 }
             }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -254,12 +213,22 @@ public class UserProfileEditFragment extends Fragment {
 
                 }
 
-            });;
+            });
+        }
+        else{
+
+            loadingDialog = new LoadingDialogUtil(getContext());
+            loadingDialog.setDialogText("Uploading changes...");
+            loadingDialog.showDialog();
+
+            uploadUserData();
+
         }
     }
 
     @OnClick(R.id.user_profile_image) void changeImage(View v){
         Log.v(TAG, "changeImage");
+        imgButtonPressed = true;
 
         //creating option for dialog
         CharSequence colors[] = new CharSequence[] {"Take Photo", "Choose from Library"};
@@ -384,6 +353,56 @@ public class UserProfileEditFragment extends Fragment {
         }
 
         return true;
+    }
+
+    void uploadUserData(){
+
+        mDatabase = FirebaseDatabase.getInstance().getReference("users/" + mFirebaseUser.getPhoneNumber());
+        Map newUserData = new HashMap();
+        newUserData.put("firstName", mFirstName.getText().toString());
+        newUserData.put("lastName", mLastName.getText().toString());
+        mDatabase.updateChildren(newUserData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                        loadingDialog.endDialog();
+                        Toast.makeText(getActivity(), "User data changed!", Toast.LENGTH_SHORT).show();
+
+                        //The user registered successfully, so redirect him to the EventListFragment
+                        //Set the bottom and top padding
+                        int bottomPaddingInPixels = (int) getActivity().getResources().getDimension(R.dimen.bottom_nav_height);
+                        int topPaddingInPixels = (int) getActivity().getResources().getDimension(R.dimen.logo_height);
+                        //Get the fragment_place FrameLayout
+                        FrameLayout fragmentPlace = (FrameLayout) getActivity().findViewById(R.id.fragment_place);
+                        //Get the bottom nav
+                        BottomNavigationView bottomNav = (BottomNavigationView) getActivity().findViewById(R.id.bottom_nav);
+                        //Set home as the selected bottom navigation item
+                        bottomNav.setSelectedItemId(R.id.menu_account);
+                        //Set the padding to the R.id.fragment_place FrameLayout
+                        fragmentPlace.setPadding(0,topPaddingInPixels,0,bottomPaddingInPixels);
+                        //Make the bottom navigation visible
+                        bottomNav.setVisibility(View.VISIBLE);
+
+                        //Add the fragment
+                        UserProfileViewFragment userProfileViewFragment = new UserProfileViewFragment();
+                        FragmentNavigationUtil.addAsSingleFragment(
+                                getActivity(),
+                                userProfileViewFragment,
+                                R.id.fragment_place,
+                                FragmentNavigationUtil.ACCOUNT_SCREEN
+                        );
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        loadingDialog.endDialog();
+                        Toast.makeText(getActivity(), "Something went wrong, please try again!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
     }
 
 }
